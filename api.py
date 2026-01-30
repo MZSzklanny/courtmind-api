@@ -35,7 +35,7 @@ from models.bet_tracker import (
 app = FastAPI(
     title="CourtMind AI API",
     description="Neural Network Powered NBA Analytics",
-    version="2.4.1"
+    version="2.4.2"
 )
 
 # CORS for Next.js frontend
@@ -124,7 +124,7 @@ class GamePrediction(BaseModel):
 def root():
     return {
         "name": "CourtMind AI API",
-        "version": "2.4.1",
+        "version": "2.4.2",
         "status": "online",
         "data_through": df['game_date'].max().strftime('%Y-%m-%d'),
         "total_records": len(df)
@@ -135,6 +135,31 @@ def root():
 def get_teams():
     """Get all NBA teams"""
     return {"teams": TEAMS}
+
+
+@app.get("/api/debug/games")
+def debug_games():
+    """Debug endpoint for games data"""
+    from models.nba_lineups_fetcher import TODAYS_LINEUPS
+    odds_data = fetch_game_odds() if get_api_key() else {'games': []}
+    games_from_odds = odds_data.get('games', [])
+
+    # Build games from lineups
+    games_from_lineups = []
+    for team, data in TODAYS_LINEUPS.items():
+        if data.get('home'):
+            games_from_lineups.append({
+                'home': team,
+                'away': data['opponent']
+            })
+
+    return {
+        "has_api_key": bool(get_api_key()),
+        "odds_games_count": len(games_from_odds),
+        "lineups_games_count": len(games_from_lineups),
+        "lineups_teams_count": len(TODAYS_LINEUPS),
+        "games_from_lineups": games_from_lineups
+    }
 
 
 @app.get("/api/teams/playing")
