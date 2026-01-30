@@ -177,7 +177,7 @@ def get_players_by_team(team: str):
 def get_todays_lineups():
     """Get today's official lineups"""
     try:
-        from CourtMind.models.nba_lineups_fetcher import get_todays_official_lineups
+        from models.nba_lineups_fetcher import get_todays_official_lineups
         lineups = get_todays_official_lineups()
         return {"lineups": lineups}
     except Exception as e:
@@ -250,7 +250,7 @@ def get_player_props(player: str):
 @app.get("/api/games")
 def get_todays_games():
     """Get today's games with predictions and odds"""
-    from CourtMind.models.ensemble_model import GamePredictor
+    from models.ensemble_model import GamePredictor
 
     game_predictor = GamePredictor()
     odds_data = fetch_game_odds() if get_api_key() else {'games': []}
@@ -258,7 +258,7 @@ def get_todays_games():
 
     # Get lineups
     try:
-        from CourtMind.models.nba_lineups_fetcher import get_todays_official_lineups
+        from models.nba_lineups_fetcher import get_todays_official_lineups
         official_lineups = get_todays_official_lineups()
     except:
         official_lineups = {}
@@ -389,7 +389,7 @@ def update_results():
 def scan_props(stat: str = "points", min_edge: float = 3.0):
     """Scan for value props across all players"""
     try:
-        from CourtMind.models.nba_lineups_fetcher import get_all_todays_starters
+        from models.nba_lineups_fetcher import get_all_todays_starters
         players = get_all_todays_starters()
     except:
         players = []
@@ -479,7 +479,7 @@ def log_todays_predictions():
 
         # Get lineups
         try:
-            from CourtMind.models.nba_lineups_fetcher import get_todays_official_lineups
+            from models.nba_lineups_fetcher import get_todays_official_lineups
             lineups = get_todays_official_lineups()
         except:
             lineups = {}

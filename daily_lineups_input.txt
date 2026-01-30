@@ -1,0 +1,45 @@
+# CourtMind Daily Lineups Input
+# ================================
+# Fill in today's starting lineups below
+# Format: TEAM: Player1, Player2, Player3, Player4, Player5 @ OPPONENT
+# Example: PHI: Tyrese Maxey, Paul George, Caleb Martin, Guerschon Yabusele, Joel Embiid @ BOS
+
+# Today's Date:
+
+# ============ GAMES ============
+
+# Game 1:
+
+
+# Game 2:
+
+
+# Game 3:
+
+
+# Game 4:
+
+
+# Game 5:
+
+
+# Game 6:
+
+
+# Game 7:
+
+
+# Game 8:
+
+
+# Game 9:
+
+
+# Game 10:
+
+
+# ============ NOTES ============
+# - Use full player names (first and last)
+# - Use 3-letter team abbreviations (PHI, BOS, LAL, etc.)
+# - List all 5 starters in order (PG, SG, SF, PF, C preferred but not required)
+# - After filling this out, let Claude know and I'll update the lineups

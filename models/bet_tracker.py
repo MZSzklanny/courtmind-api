@@ -290,9 +290,9 @@ def generate_daily_predictions(df, odds_data, lineups, min_edge=MIN_EDGE_THRESHO
 
     Returns game predictions and prop predictions that meet edge threshold.
     """
-    from CourtMind.models.ensemble_model import GamePredictor
-    from CourtMind.models.predictor import PlayerPredictor
-    from CourtMind.models.odds_fetcher import get_player_prop_line, TEAM_FULL_NAMES
+    from models.ensemble_model import GamePredictor
+    from models.predictor import PlayerPredictor
+    from models.odds_fetcher import get_player_prop_line, TEAM_FULL_NAMES
 
     TEAM_ABBREV = {v: k for k, v in TEAM_FULL_NAMES.items()}
 

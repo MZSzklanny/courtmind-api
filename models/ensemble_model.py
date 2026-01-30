@@ -34,7 +34,7 @@ try:
 except ImportError:
     XGB_AVAILABLE = False
 
-from CourtMind.models.feature_engineering import (
+from models.feature_engineering import (
     engineer_player_features,
     prepare_training_data,
     calculate_opponent_defensive_rating,
