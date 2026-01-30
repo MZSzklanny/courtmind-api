@@ -624,6 +624,11 @@ def generate_top_picks(limit: int = 10):
 
             for prop_type, stat_key in stat_types:
                 proj = pred[stat_key]
+
+                # Filter out low projections - these props likely don't exist on books
+                if proj <= 5:
+                    continue
+
                 lines = get_player_prop_line(player, prop_type)
 
                 if not lines:
