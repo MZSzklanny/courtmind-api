@@ -500,6 +500,192 @@ def health_check():
     }
 
 
+@app.get("/api/top-picks")
+def get_top_picks(limit: int = 10):
+    """
+    Get top picks of the day ranked by combined edge and confidence score.
+    Score = edge% * (confidence / 100)
+
+    Includes: player props (pts, reb, ast, 3pm) and game lines (spread, total)
+    """
+    all_picks = []
+
+    # Get lineups for player props
+    try:
+        from models.nba_lineups_fetcher import get_all_todays_starters, get_todays_official_lineups
+        players = get_all_todays_starters()
+        lineups = get_todays_official_lineups()
+    except:
+        players = []
+        lineups = {}
+
+    # Get odds data for game lines
+    odds_data = fetch_game_odds() if get_api_key() else {'games': []}
+
+    # ==========================================================================
+    # PLAYER PROPS
+    # ==========================================================================
+    stat_types = [
+        ('points', 'pts'),
+        ('rebounds', 'reb'),
+        ('assists', 'ast'),
+        ('threes', '3pm')
+    ]
+
+    for player in players[:50]:  # Limit to avoid timeout
+        try:
+            # Find opponent
+            opponent = 'AVG'
+            for team, data in lineups.items():
+                if player in data.get('starters', []):
+                    opponent = data.get('opponent', 'AVG')
+                    break
+
+            pred = predictor.predict(player, opponent)
+            if not pred:
+                continue
+
+            for prop_type, stat_key in stat_types:
+                proj = pred[stat_key]
+                lines = get_player_prop_line(player, prop_type)
+
+                if not lines:
+                    continue
+
+                dk_line = lines.get('dk', {}).get('over', {}).get('line', 0)
+                fd_line = lines.get('fd', {}).get('over', {}).get('line', 0)
+                dk_odds = lines.get('dk', {}).get('over', {}).get('odds', -110)
+                fd_odds = lines.get('fd', {}).get('over', {}).get('odds', -110)
+
+                # Use best available line
+                best_line = None
+                best_book = None
+                if dk_line > 0 and fd_line > 0:
+                    # For OVER, prefer lower line; for UNDER, prefer higher line
+                    best_line = min(dk_line, fd_line)
+                    best_book = 'DK' if dk_line <= fd_line else 'FD'
+                elif dk_line > 0:
+                    best_line = dk_line
+                    best_book = 'DK'
+                elif fd_line > 0:
+                    best_line = fd_line
+                    best_book = 'FD'
+
+                if not best_line or best_line <= 0:
+                    continue
+
+                edge = ((proj - best_line) / best_line) * 100
+                confidence = pred['confidence']
+
+                # Score = edge * confidence weight
+                # Higher edge + higher confidence = better pick
+                score = abs(edge) * (confidence / 100)
+
+                # Only include meaningful edges
+                if abs(edge) >= 5:
+                    all_picks.append({
+                        'type': 'player_prop',
+                        'player': player,
+                        'team': pred['team'],
+                        'stat': prop_type.upper(),
+                        'projection': round(proj, 1),
+                        'line': best_line,
+                        'book': best_book,
+                        'dk_line': dk_line if dk_line > 0 else None,
+                        'fd_line': fd_line if fd_line > 0 else None,
+                        'edge': round(edge, 1),
+                        'direction': 'OVER' if edge > 0 else 'UNDER',
+                        'confidence': confidence,
+                        'score': round(score, 2)
+                    })
+        except Exception as e:
+            continue
+
+    # ==========================================================================
+    # GAME LINES (Spread & Total)
+    # ==========================================================================
+    from models.ensemble_model import GamePredictor
+    game_predictor = GamePredictor()
+
+    for game in odds_data.get('games', []):
+        try:
+            home_full = game['home_team']
+            away_full = game['away_team']
+            home_team = TEAM_ABBREV.get(home_full, home_full[:3].upper())
+            away_team = TEAM_ABBREV.get(away_full, away_full[:3].upper())
+
+            result = game_predictor.predict_game(df, home_team, away_team)
+            if not result:
+                continue
+
+            dk = game.get('bookmakers', {}).get('draftkings', {})
+
+            # SPREAD
+            dk_spread = dk.get('spreads', {}).get(home_full, {}).get('point')
+            if dk_spread is not None:
+                model_spread = result['spread']  # Positive = home wins by X
+                # DK spread is from home team perspective (negative = favorite)
+                # Edge: if model says home wins by 5, and DK has home -3, we have +2 edge on home
+                spread_diff = model_spread - (-dk_spread)  # Flip DK spread sign
+                edge = (spread_diff / max(abs(dk_spread), 1)) * 100
+
+                if abs(edge) >= 5:
+                    direction = 'HOME' if spread_diff > 0 else 'AWAY'
+                    pick_team = home_team if direction == 'HOME' else away_team
+                    all_picks.append({
+                        'type': 'spread',
+                        'player': f"{away_team} @ {home_team}",
+                        'team': pick_team,
+                        'stat': 'SPREAD',
+                        'projection': round(model_spread, 1),
+                        'line': dk_spread,
+                        'book': 'DK',
+                        'dk_line': dk_spread,
+                        'fd_line': None,
+                        'edge': round(abs(edge), 1),
+                        'direction': f"{pick_team} {'+' if dk_spread > 0 else ''}{dk_spread}",
+                        'confidence': round(result['home_win_prob'] if direction == 'HOME' else result['away_win_prob']),
+                        'score': round(abs(edge) * (result['home_win_prob'] if direction == 'HOME' else result['away_win_prob']) / 100, 2)
+                    })
+
+            # TOTAL
+            dk_total = dk.get('totals', {}).get('Over', {}).get('point')
+            if dk_total is not None:
+                model_total = result['predicted_total']
+                edge = ((model_total - dk_total) / dk_total) * 100
+
+                if abs(edge) >= 3:
+                    all_picks.append({
+                        'type': 'total',
+                        'player': f"{away_team} @ {home_team}",
+                        'team': f"{away_team}/{home_team}",
+                        'stat': 'TOTAL',
+                        'projection': round(model_total, 1),
+                        'line': dk_total,
+                        'book': 'DK',
+                        'dk_line': dk_total,
+                        'fd_line': None,
+                        'edge': round(abs(edge), 1),
+                        'direction': 'OVER' if edge > 0 else 'UNDER',
+                        'confidence': 65,  # Base confidence for totals
+                        'score': round(abs(edge) * 0.65, 2)
+                    })
+        except:
+            continue
+
+    # Sort by score (edge * confidence) and return top N
+    all_picks = sorted(all_picks, key=lambda x: x['score'], reverse=True)
+    top_picks = all_picks[:limit]
+
+    return {
+        "picks": top_picks,
+        "count": len(top_picks),
+        "total_evaluated": len(all_picks),
+        "date": datetime.now().strftime('%Y-%m-%d'),
+        "criteria": "Score = |Edge%| × (Confidence/100)"
+    }
+
+
 # =============================================================================
 # DAILY TRACKING ENDPOINTS
 # =============================================================================
