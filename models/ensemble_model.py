@@ -43,51 +43,52 @@ from models.feature_engineering import (
 
 
 # =============================================================================
-# LSTM MODEL
+# LSTM MODEL (only defined if PyTorch is available)
 # =============================================================================
 
-class LSTMPredictor(nn.Module):
-    """LSTM model for time-series player performance prediction."""
+if TORCH_AVAILABLE:
+    class LSTMPredictor(nn.Module):
+        """LSTM model for time-series player performance prediction."""
 
-    def __init__(self, input_size, hidden_size=64, num_layers=2, dropout=0.2):
-        super(LSTMPredictor, self).__init__()
+        def __init__(self, input_size, hidden_size=64, num_layers=2, dropout=0.2):
+            super(LSTMPredictor, self).__init__()
 
-        self.lstm = nn.LSTM(
-            input_size=input_size,
-            hidden_size=hidden_size,
-            num_layers=num_layers,
-            batch_first=True,
-            dropout=dropout if num_layers > 1 else 0,
-            bidirectional=True
-        )
+            self.lstm = nn.LSTM(
+                input_size=input_size,
+                hidden_size=hidden_size,
+                num_layers=num_layers,
+                batch_first=True,
+                dropout=dropout if num_layers > 1 else 0,
+                bidirectional=True
+            )
 
-        self.attention = nn.Sequential(
-            nn.Linear(hidden_size * 2, hidden_size),
-            nn.Tanh(),
-            nn.Linear(hidden_size, 1),
-            nn.Softmax(dim=1)
-        )
+            self.attention = nn.Sequential(
+                nn.Linear(hidden_size * 2, hidden_size),
+                nn.Tanh(),
+                nn.Linear(hidden_size, 1),
+                nn.Softmax(dim=1)
+            )
 
-        self.fc = nn.Sequential(
-            nn.Linear(hidden_size * 2, hidden_size),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_size, 32),
-            nn.ReLU(),
-            nn.Linear(32, 1)
-        )
+            self.fc = nn.Sequential(
+                nn.Linear(hidden_size * 2, hidden_size),
+                nn.ReLU(),
+                nn.Dropout(dropout),
+                nn.Linear(hidden_size, 32),
+                nn.ReLU(),
+                nn.Linear(32, 1)
+            )
 
-    def forward(self, x):
-        # x shape: (batch, seq_len, features)
-        lstm_out, _ = self.lstm(x)
+        def forward(self, x):
+            # x shape: (batch, seq_len, features)
+            lstm_out, _ = self.lstm(x)
 
-        # Attention weights
-        attn_weights = self.attention(lstm_out)
-        context = torch.sum(attn_weights * lstm_out, dim=1)
+            # Attention weights
+            attn_weights = self.attention(lstm_out)
+            context = torch.sum(attn_weights * lstm_out, dim=1)
 
-        # Final prediction
-        out = self.fc(context)
-        return out.squeeze()
+            # Final prediction
+            out = self.fc(context)
+            return out.squeeze()
 
 
 class LSTMWrapper:
