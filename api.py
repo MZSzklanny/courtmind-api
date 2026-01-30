@@ -22,11 +22,11 @@ BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
 sys.path.insert(0, str(BASE_DIR.parent))  # For local dev
 
-from CourtMind.models.predictor import PlayerPredictor
-from CourtMind.models.odds_fetcher import (
+from models.predictor import PlayerPredictor
+from models.odds_fetcher import (
     fetch_game_odds, get_player_prop_line, get_api_key, TEAM_FULL_NAMES
 )
-from CourtMind.models.bet_tracker import (
+from models.bet_tracker import (
     get_tracking_stats, check_results, get_todays_predictions,
     log_daily_predictions, get_daily_tracking_stats, log_daily_picks,
     generate_daily_predictions, grade_daily_picks
@@ -41,7 +41,12 @@ app = FastAPI(
 # CORS for Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://courtmind.bet",
+        "https://www.courtmind.bet"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
