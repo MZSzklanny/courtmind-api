@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Data files (exclude large ones)
+*.xlsx
+*.csv
+# Keep the production parquet (it's small ~400KB)
+
+# Cache files
+*_cache.json
+lineups_cache.json
+odds_cache.json
+props_cache.json
+
+# Logs
+*.log
+daily_log.txt
+daily_update_log.txt
+lineup_update_log.txt
+
+# API keys (sensitive)
+odds_api_key.txt
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Next.js (frontend is separate)
+frontend/
+
+# Predictions data (we'll keep this)
+# predictions_log.json
+# daily_tracking.json
