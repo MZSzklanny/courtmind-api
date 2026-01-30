@@ -140,7 +140,12 @@ def get_teams():
 @app.get("/api/teams/playing")
 def get_teams_playing_today():
     """Get teams playing today"""
+    from models.nba_lineups_fetcher import TODAYS_LINEUPS
     try:
+        # Use lineups as primary source
+        if TODAYS_LINEUPS:
+            return {"teams": list(TODAYS_LINEUPS.keys())}
+        # Fallback to odds API
         odds_data = fetch_game_odds()
         teams_playing = set()
         for game in odds_data.get('games', []):
