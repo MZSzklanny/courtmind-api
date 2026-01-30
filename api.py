@@ -251,6 +251,7 @@ def get_player_props(player: str):
 def get_todays_games():
     """Get today's games with predictions and odds"""
     from models.ensemble_model import GamePredictor
+    from models.nba_lineups_fetcher import TODAYS_LINEUPS
 
     game_predictor = GamePredictor()
     odds_data = fetch_game_odds() if get_api_key() else {'games': []}
@@ -265,11 +266,33 @@ def get_todays_games():
 
     results = []
 
+    # Build games from lineups if odds API returns empty
+    if not games_list and TODAYS_LINEUPS:
+        # Create game entries from lineups (home teams only to avoid duplicates)
+        for team, data in TODAYS_LINEUPS.items():
+            if data.get('home'):
+                home_team = team
+                away_team = data['opponent']
+                games_list.append({
+                    'home_team': home_team,
+                    'away_team': away_team,
+                    'from_lineups': True  # Flag to indicate source
+                })
+
     for game in games_list:
-        home_full = game['home_team']
-        away_full = game['away_team']
-        home_team = TEAM_ABBREV.get(home_full, home_full[:3].upper())
-        away_team = TEAM_ABBREV.get(away_full, away_full[:3].upper())
+        # Handle both Odds API format (full names) and lineups format (abbreviations)
+        if game.get('from_lineups'):
+            home_team = game['home_team']
+            away_team = game['away_team']
+            # Reverse lookup for full names
+            abbrev_to_full = {v: k for k, v in TEAM_ABBREV.items()}
+            home_full = abbrev_to_full.get(home_team, home_team)
+            away_full = abbrev_to_full.get(away_team, away_team)
+        else:
+            home_full = game['home_team']
+            away_full = game['away_team']
+            home_team = TEAM_ABBREV.get(home_full, home_full[:3].upper())
+            away_team = TEAM_ABBREV.get(away_full, away_full[:3].upper())
 
         # Get prediction
         result = game_predictor.predict_game(df, home_team, away_team)
