@@ -575,8 +575,7 @@ def generate_top_picks(limit: int = 10):
     stat_types = [
         ('points', 'pts'),
         ('rebounds', 'reb'),
-        ('assists', 'ast'),
-        ('threes', '3pm')
+        ('assists', 'ast')
     ]
 
     for player in players[:50]:  # Limit to avoid timeout
