@@ -26,6 +26,7 @@ from models.predictor import PlayerPredictor
 from models.odds_fetcher import (
     fetch_game_odds, get_player_prop_line, get_api_key, TEAM_FULL_NAMES
 )
+from models.nba_lineups_fetcher import TODAYS_LINEUPS
 from models.bet_tracker import (
     get_tracking_stats, check_results, get_todays_predictions,
     log_daily_predictions, get_daily_tracking_stats, log_daily_picks,
@@ -140,12 +141,11 @@ def get_teams():
 @app.get("/api/teams/playing")
 def get_teams_playing_today():
     """Get teams playing today"""
-    from models.nba_lineups_fetcher import TODAYS_LINEUPS
+    # Use lineups as primary source (TODAYS_LINEUPS imported at top)
+    if TODAYS_LINEUPS:
+        return {"teams": list(TODAYS_LINEUPS.keys())}
+    # Fallback to odds API
     try:
-        # Use lineups as primary source
-        if TODAYS_LINEUPS:
-            return {"teams": list(TODAYS_LINEUPS.keys())}
-        # Fallback to odds API
         odds_data = fetch_game_odds()
         teams_playing = set()
         for game in odds_data.get('games', []):
@@ -256,7 +256,6 @@ def get_player_props(player: str):
 def get_todays_games():
     """Get today's games with predictions and odds"""
     from models.ensemble_model import GamePredictor
-    from models.nba_lineups_fetcher import TODAYS_LINEUPS
 
     game_predictor = GamePredictor()
     odds_data = fetch_game_odds() if get_api_key() else {'games': []}
