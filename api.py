@@ -269,7 +269,16 @@ def get_player_props(player: str):
 
 @app.get("/api/games")
 def get_todays_games():
-    """Get today's games with predictions and odds"""
+    """Get cached games data (fast read from cache)."""
+    cached = load_games_cache()
+    if cached:
+        return cached
+    return {"games": [], "count": 0, "message": "No games cached. Run POST /api/games/generate first."}
+
+
+@app.post("/api/games/generate")
+def generate_todays_games():
+    """Generate and cache today's games with predictions and odds. This is slow - run daily."""
     from models.ensemble_model import GamePredictor
 
     game_predictor = GamePredictor()
@@ -287,7 +296,6 @@ def get_todays_games():
 
     # Build games from lineups if odds API returns empty
     if not games_list and TODAYS_LINEUPS:
-        # Create game entries from lineups (home teams only to avoid duplicates)
         for team, data in TODAYS_LINEUPS.items():
             if data.get('home'):
                 home_team = team
@@ -295,15 +303,13 @@ def get_todays_games():
                 games_list.append({
                     'home_team': home_team,
                     'away_team': away_team,
-                    'from_lineups': True  # Flag to indicate source
+                    'from_lineups': True
                 })
 
     for game in games_list:
-        # Handle both Odds API format (full names) and lineups format (abbreviations)
         if game.get('from_lineups'):
             home_team = game['home_team']
             away_team = game['away_team']
-            # Reverse lookup for full names
             abbrev_to_full = {v: k for k, v in TEAM_ABBREV.items()}
             home_full = abbrev_to_full.get(home_team, home_team)
             away_full = abbrev_to_full.get(away_team, away_team)
@@ -313,7 +319,6 @@ def get_todays_games():
             home_team = TEAM_ABBREV.get(home_full, home_full[:3].upper())
             away_team = TEAM_ABBREV.get(away_full, away_full[:3].upper())
 
-        # Get prediction
         result = game_predictor.predict_game(df, home_team, away_team)
 
         # Find top plays
@@ -355,7 +360,6 @@ def get_todays_games():
 
         top_plays = sorted(top_plays, key=lambda x: x['score'], reverse=True)[:3]
 
-        # Get odds
         dk = game.get('bookmakers', {}).get('draftkings', {})
         dk_spread = dk.get('spreads', {}).get(home_full, {}).get('point', None)
         dk_total = dk.get('totals', {}).get('Over', {}).get('point', None)
@@ -385,7 +389,16 @@ def get_todays_games():
 
         results.append(game_data)
 
-    return {"games": results, "count": len(results)}
+    response = {
+        "games": results,
+        "count": len(results),
+        "generated_at": datetime.now().isoformat()
+    }
+
+    # Save to cache
+    save_games_cache(response)
+
+    return response
 
 
 @app.get("/api/tracking")
@@ -501,8 +514,9 @@ def health_check():
     }
 
 
-# Cache file for top picks
+# Cache files
 TOP_PICKS_CACHE = BASE_DIR / 'top_picks_cache.json'
+GAMES_CACHE = BASE_DIR / 'games_cache.json'
 
 
 def load_top_picks_cache():
@@ -519,6 +533,23 @@ def load_top_picks_cache():
 def save_top_picks_cache(data):
     """Save top picks to cache."""
     with open(TOP_PICKS_CACHE, 'w') as f:
+        json.dump(data, f)
+
+
+def load_games_cache():
+    """Load cached games data."""
+    if GAMES_CACHE.exists():
+        try:
+            with open(GAMES_CACHE, 'r') as f:
+                return json.load(f)
+        except:
+            pass
+    return None
+
+
+def save_games_cache(data):
+    """Save games data to cache."""
+    with open(GAMES_CACHE, 'w') as f:
         json.dump(data, f)
 
 
