@@ -777,13 +777,24 @@ def generate_top_picks(limit: int = 10):
         except:
             continue
 
-    # Sort by score (edge * confidence) and return top N
-    all_picks = sorted(all_picks, key=lambda x: x['score'], reverse=True)
-    top_picks = all_picks[:limit]
+    # Separate player props from game props
+    player_props = [p for p in all_picks if p['type'] == 'player_prop']
+    game_props = [p for p in all_picks if p['type'] in ('spread', 'total')]
+
+    # Sort each by score and take top N
+    player_props = sorted(player_props, key=lambda x: x['score'], reverse=True)[:10]
+    game_props = sorted(game_props, key=lambda x: x['score'], reverse=True)[:5]
+
+    # Combine for the response
+    top_picks = player_props + game_props
 
     result = {
         "picks": top_picks,
+        "player_props": player_props,
+        "game_props": game_props,
         "count": len(top_picks),
+        "player_prop_count": len(player_props),
+        "game_prop_count": len(game_props),
         "total_evaluated": len(all_picks),
         "date": datetime.now().strftime('%Y-%m-%d'),
         "generated_at": datetime.now().isoformat(),
