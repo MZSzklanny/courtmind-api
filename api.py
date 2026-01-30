@@ -138,6 +138,20 @@ def get_teams():
     return {"teams": TEAMS}
 
 
+@app.get("/api/debug/odds")
+def debug_odds():
+    """Debug endpoint for odds API"""
+    api_key = get_api_key()
+    odds_data = fetch_game_odds()
+    return {
+        "has_api_key": bool(api_key),
+        "api_key_preview": api_key[:8] + "..." if api_key and len(api_key) > 8 else "none",
+        "games_count": len(odds_data.get('games', [])),
+        "error": odds_data.get('error'),
+        "sample_game": odds_data.get('games', [{}])[0] if odds_data.get('games') else None
+    }
+
+
 @app.get("/api/teams/playing")
 def get_teams_playing_today():
     """Get teams playing today"""
