@@ -670,14 +670,30 @@ def generate_top_picks(limit: int = 10):
             dk_spread = dk.get('spreads', {}).get(home_full, {}).get('point')
             if dk_spread is not None:
                 model_spread = result['spread']  # Positive = home wins by X
-                # DK spread is from home team perspective (negative = favorite)
-                # Edge: if model says home wins by 5, and DK has home -3, we have +2 edge on home
-                spread_diff = model_spread - (-dk_spread)  # Flip DK spread sign
-                edge = (spread_diff / max(abs(dk_spread), 1)) * 100
+                # dk_spread is from home perspective: negative = home favored
+                # model_spread: positive = home wins by X
+                # Edge in points: how much better is model vs line
+                # If model=-5 (home wins by 5) and dk=-3 (home -3), edge = 2 pts on home
+                spread_edge_pts = abs(model_spread) - abs(dk_spread)
 
-                if abs(edge) >= 5:
-                    direction = 'HOME' if spread_diff > 0 else 'AWAY'
-                    pick_team = home_team if direction == 'HOME' else away_team
+                # Convert to percentage (2 pts edge on a 5pt spread = 40% edge)
+                # But cap at reasonable values
+                edge = (abs(spread_edge_pts) / max(abs(dk_spread), 3)) * 100
+                edge = min(edge, 50)  # Cap at 50%
+
+                if abs(spread_edge_pts) >= 1.5:  # At least 1.5 point edge
+                    # Determine direction based on model vs line
+                    if model_spread < dk_spread:
+                        # Model has home winning by more (or losing by less)
+                        pick_team = home_team
+                        pick_spread = dk_spread
+                    else:
+                        # Model has away covering
+                        pick_team = away_team
+                        pick_spread = -dk_spread  # Flip for away
+
+                    conf = round(result['home_win_prob'] if pick_team == home_team else result['away_win_prob'])
+
                     all_picks.append({
                         'type': 'spread',
                         'player': f"{away_team} @ {home_team}",
@@ -688,10 +704,10 @@ def generate_top_picks(limit: int = 10):
                         'book': 'DK',
                         'dk_line': dk_spread,
                         'fd_line': None,
-                        'edge': round(abs(edge), 1),
-                        'direction': f"{pick_team} {'+' if dk_spread > 0 else ''}{dk_spread}",
-                        'confidence': round(result['home_win_prob'] if direction == 'HOME' else result['away_win_prob']),
-                        'score': round(abs(edge) * (result['home_win_prob'] if direction == 'HOME' else result['away_win_prob']) / 100, 2)
+                        'edge': round(edge, 1),
+                        'direction': f"{pick_team} {'+' if pick_spread > 0 else ''}{pick_spread}",
+                        'confidence': conf,
+                        'score': round(edge * (conf / 100), 2)
                     })
 
             # TOTAL
