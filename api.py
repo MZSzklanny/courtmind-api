@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import pandas as pd
+import json
 import sys
 import os
 from datetime import datetime
@@ -500,13 +501,59 @@ def health_check():
     }
 
 
+# Cache file for top picks
+TOP_PICKS_CACHE = BASE_DIR / 'top_picks_cache.json'
+
+
+def load_top_picks_cache():
+    """Load cached top picks."""
+    if TOP_PICKS_CACHE.exists():
+        try:
+            with open(TOP_PICKS_CACHE, 'r') as f:
+                return json.load(f)
+        except:
+            pass
+    return None
+
+
+def save_top_picks_cache(data):
+    """Save top picks to cache."""
+    with open(TOP_PICKS_CACHE, 'w') as f:
+        json.dump(data, f)
+
+
 @app.get("/api/top-picks")
 def get_top_picks(limit: int = 10):
     """
-    Get top picks of the day ranked by combined edge and confidence score.
-    Score = edge% * (confidence / 100)
+    Get cached top picks of the day (fast read from cache).
+    Use POST /api/top-picks/generate to refresh the cache.
+    """
+    cached = load_top_picks_cache()
+    if cached:
+        # Return cached picks, limited to requested count
+        picks = cached.get('picks', [])[:limit]
+        return {
+            "picks": picks,
+            "count": len(picks),
+            "total_evaluated": cached.get('total_evaluated', 0),
+            "date": cached.get('date', ''),
+            "generated_at": cached.get('generated_at', ''),
+            "criteria": "Score = |Edge%| × (Confidence/100)"
+        }
+    return {
+        "picks": [],
+        "count": 0,
+        "total_evaluated": 0,
+        "date": datetime.now().strftime('%Y-%m-%d'),
+        "message": "No picks cached. Run POST /api/top-picks/generate first."
+    }
 
-    Includes: player props (pts, reb, ast, 3pm) and game lines (spread, total)
+
+@app.post("/api/top-picks/generate")
+def generate_top_picks(limit: int = 10):
+    """
+    Generate and cache top picks of the day.
+    This is slow (~30-60s) - run once daily, not on every request.
     """
     all_picks = []
 
@@ -677,13 +724,19 @@ def get_top_picks(limit: int = 10):
     all_picks = sorted(all_picks, key=lambda x: x['score'], reverse=True)
     top_picks = all_picks[:limit]
 
-    return {
+    result = {
         "picks": top_picks,
         "count": len(top_picks),
         "total_evaluated": len(all_picks),
         "date": datetime.now().strftime('%Y-%m-%d'),
+        "generated_at": datetime.now().isoformat(),
         "criteria": "Score = |Edge%| × (Confidence/100)"
     }
+
+    # Save to cache
+    save_top_picks_cache(result)
+
+    return result
 
 
 # =============================================================================
