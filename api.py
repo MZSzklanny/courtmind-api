@@ -654,11 +654,17 @@ def generate_top_picks(limit: int = 10):
                 edge = ((proj - best_line) / best_line) * 100
                 confidence = pred['confidence']
 
+                # Filter out suspicious data:
+                # - Edge over 80% is likely bad data (line doesn't exist or wrong player match)
+                # - Projection way below line for UNDER (e.g., proj 1.0 vs line 6.5) is suspicious
+                if abs(edge) > 80:
+                    continue  # Skip - likely bad data
+
                 # Score = edge * confidence weight
                 # Higher edge + higher confidence = better pick
                 score = abs(edge) * (confidence / 100)
 
-                # Only include meaningful edges
+                # Only include meaningful edges (5-80%)
                 if abs(edge) >= 5:
                     all_picks.append({
                         'type': 'player_prop',
