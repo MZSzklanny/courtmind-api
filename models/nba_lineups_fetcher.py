@@ -28,73 +28,117 @@ TEAM_ABBREV = {
     'Toronto Raptors': 'TOR', 'Utah Jazz': 'UTA', 'Washington Wizards': 'WAS',
 }
 
-# Today's lineups - January 31, 2026 (from Rotowire)
+# Today's lineups - February 1, 2026 (from Rotowire)
 TODAYS_LINEUPS = {
-    # Game 1: SAS @ CHA
-    'CHA': {
-        'opponent': 'SAS',
+    # Game 1: MIL @ BOS
+    'BOS': {
+        'opponent': 'MIL',
         'home': True,
-        'starters': ['LaMelo Ball', 'Kon Knueppel', 'Brandon Miller', 'Miles Bridges', 'Moussa Diabate']
+        'starters': ['Payton Pritchard', 'Derrick White', 'Jaylen Brown', 'Sam Hauser', 'Neemias Queta']
     },
-    'SAS': {
-        'opponent': 'CHA',
+    'MIL': {
+        'opponent': 'BOS',
         'home': False,
-        'starters': ["De'Aaron Fox", 'Stephon Castle', 'Justin Champagnie', 'Harrison Barnes', 'Victor Wembanyama']
+        'starters': ['Ryan Rollins', 'AJ Green', 'Kyle Kuzma', 'Bobby Portis', 'Myles Turner']
     },
-    # Game 2: ATL @ IND
-    'IND': {
-        'opponent': 'ATL',
+    # Game 2: BKN @ DET
+    'DET': {
+        'opponent': 'BKN',
         'home': True,
-        'starters': ['Andrew Nembhard', 'Johnny Furphy', 'Aaron Nesmith', 'Jarace Walker', 'Pascal Siakam']
+        'starters': ['Cade Cunningham', 'Duncan Robinson', 'Ausar Thompson', 'Tobias Harris', 'Jalen Duren']
     },
-    'ATL': {
-        'opponent': 'IND',
+    'BKN': {
+        'opponent': 'DET',
         'home': False,
-        'starters': ['Dyson Daniels', 'Nickeil Alexander-Walker', 'Corey Kispert', 'Jalen Johnson', 'Christ Koloko']
+        'starters': ['Egor Demin', 'Terance Mann', 'Michael Porter Jr.', 'Danny Wolf', 'Nic Claxton']
     },
-    # Game 3: NOP @ PHI
-    'PHI': {
-        'opponent': 'NOP',
-        'home': True,
-        'starters': ['Tyrese Maxey', 'VJ Edgecombe', 'Kelly Oubre Jr.', 'Paul George', 'Joel Embiid']
-    },
-    'NOP': {
-        'opponent': 'PHI',
-        'home': False,
-        'starters': ['Trey Murphy III', 'Herbert Jones', 'Saddiq Bey', 'Zion Williamson', 'Derik Queen']
-    },
-    # Game 4: CHI @ MIA
+    # Game 3: CHI @ MIA
     'MIA': {
         'opponent': 'CHI',
         'home': True,
-        'starters': ['Kasparas Jakucionis', 'Jaime Jaquez Jr.', 'Pelle Larsson', 'Andrew Wiggins', 'Bam Adebayo']
+        'starters': ['Davion Mitchell', 'Norman Powell', 'Pelle Larsson', 'Andrew Wiggins', 'Bam Adebayo']
     },
     'CHI': {
         'opponent': 'MIA',
         'home': False,
-        'starters': ['Josh Giddey', 'Coby White', 'Isaac Okoro', 'Matas Buzelis', 'Jalen Smith']
+        'starters': ['Josh Giddey', 'Coby White', 'Isaac Okoro', 'Matas Buzelis', 'Nikola Vucevic']
     },
-    # Game 5: MIN @ MEM
-    'MEM': {
-        'opponent': 'MIN',
+    # Game 4: SAC @ WAS
+    'WAS': {
+        'opponent': 'SAC',
         'home': True,
-        'starters': ['Cam Spencer', 'Cedric Coward', 'Jaylen Wells', 'Santi Aldama', 'Jaren Jackson Jr.']
+        'starters': ['Bub Carrington', 'Keyshawn George', 'Bilal Coulibaly', 'Khris Middleton', 'Alex Sarr']
     },
-    'MIN': {
-        'opponent': 'MEM',
+    'SAC': {
+        'opponent': 'WAS',
         'home': False,
-        'starters': ['Donte DiVincenzo', 'Anthony Edwards', 'Jaden McDaniels', 'Julius Randle', 'Rudy Gobert']
+        'starters': ['Russell Westbrook', 'Zach LaVine', 'DeMar DeRozan', 'Precious Achiuwa', 'Domantas Sabonis']
     },
-    # Game 6: DAL @ HOU
-    'HOU': {
-        'opponent': 'DAL',
+    # Game 5: UTA @ TOR
+    'TOR': {
+        'opponent': 'UTA',
         'home': True,
-        'starters': ['Amen Thompson', 'Tari Eason', 'Kevin Durant', 'Jabari Smith Jr.', 'Alperen Sengun']
+        'starters': ['Immanuel Quickley', 'Brandon Ingram', 'RJ Barrett', 'Scottie Barnes', 'Collin Murray-Boyles']
     },
-    'DAL': {
-        'opponent': 'HOU',
+    'UTA': {
+        'opponent': 'TOR',
         'home': False,
-        'starters': ['Cooper Flagg', 'Max Christie', 'Naji Marshall', 'PJ Washington', 'Daniel Gafford']
+        'starters': ['Keyonte George', 'Cody Williams', 'Ace Bailey', 'Lauri Markkanen', 'Jusuf Nurkic']
+    },
+    # Game 6: LAL @ NYK
+    'NYK': {
+        'opponent': 'LAL',
+        'home': True,
+        'starters': ['Jalen Brunson', 'Josh Hart', 'Mikal Bridges', 'OG Anunoby', 'Karl-Anthony Towns']
+    },
+    'LAL': {
+        'opponent': 'NYK',
+        'home': False,
+        'starters': ['Luka Doncic', 'Marcus Smart', 'Jake LaRavia', 'LeBron James', 'Deandre Ayton']
+    },
+    # Game 7: ORL @ SAS
+    'SAS': {
+        'opponent': 'ORL',
+        'home': True,
+        'starters': ["De'Aaron Fox", 'Stephon Castle', 'Devin Vassell', 'Justin Champagnie', 'Victor Wembanyama']
+    },
+    'ORL': {
+        'opponent': 'SAS',
+        'home': False,
+        'starters': ['Jalen Suggs', 'Anthony Black', 'Desmond Bane', 'Paolo Banchero', 'Wendell Carter Jr.']
+    },
+    # Game 8: LAC @ PHX
+    'PHX': {
+        'opponent': 'LAC',
+        'home': True,
+        'starters': ['Collin Gillespie', 'Grayson Allen', 'Dillon Brooks', "Royce O'Neale", 'Mark Williams']
+    },
+    'LAC': {
+        'opponent': 'PHX',
+        'home': False,
+        'starters': ['James Harden', 'Kris Dunn', 'Kawhi Leonard', 'John Collins', 'Ivica Zubac']
+    },
+    # Game 9: CLE @ POR
+    'POR': {
+        'opponent': 'CLE',
+        'home': True,
+        'starters': ['Deni Avdija', 'Shaedon Sharpe', 'Toumani Camara', 'Sidy Cissoko', 'Donovan Clingan']
+    },
+    'CLE': {
+        'opponent': 'POR',
+        'home': False,
+        'starters': ['Donovan Mitchell', 'Sam Merrill', 'Jaylon Tyson', 'Dean Wade', 'Jarrett Allen']
+    },
+    # Game 10: OKC @ DEN
+    'DEN': {
+        'opponent': 'OKC',
+        'home': True,
+        'starters': ['Jamal Murray', 'Jalen Pickett', 'Peyton Watson', 'Spencer Jones', 'Nikola Jokic']
+    },
+    'OKC': {
+        'opponent': 'DEN',
+        'home': False,
+        'starters': ['Shai Gilgeous-Alexander', 'Luguentz Dort', 'Aaron Wiggins', 'Chet Holmgren', 'Isaiah Hartenstein']
     },
 }
 
