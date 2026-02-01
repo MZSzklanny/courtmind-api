@@ -54,6 +54,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+STARTUP_CACHE_REGEN = True  # Set to False to disable auto-regeneration
+
+
 # Load data once at startup
 DATA_FILE = BASE_DIR / 'data' / 'NBA_PRODUCTION.parquet'
 if not DATA_FILE.exists():
@@ -852,6 +856,35 @@ def grade_yesterdays_predictions(date: str = None):
     """Grade predictions for a specific date (defaults to yesterday)"""
     result = grade_daily_picks(df, date)
     return result
+
+
+# =============================================================================
+# STARTUP EVENT - Regenerate cache on server start
+# =============================================================================
+@app.on_event("startup")
+async def startup_regenerate_cache():
+    """
+    Regenerate games and picks cache on server startup.
+    Render free tier has ephemeral storage - cache files get wiped on restart.
+    """
+    import asyncio
+
+    async def regen():
+        await asyncio.sleep(5)  # Wait for server to be fully ready
+        try:
+            print("[STARTUP] Regenerating games cache...")
+            generate_games()
+            print("[STARTUP] Games cache done")
+
+            print("[STARTUP] Regenerating top picks cache...")
+            generate_top_picks(limit=10)
+            print("[STARTUP] Top picks cache done")
+
+            print("[STARTUP] Cache regeneration complete!")
+        except Exception as e:
+            print(f"[STARTUP] Cache regen error: {e}")
+
+    asyncio.create_task(regen())
 
 
 if __name__ == "__main__":
