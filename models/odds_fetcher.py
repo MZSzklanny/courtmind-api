@@ -181,7 +181,7 @@ def fetch_player_props():
             'player_steals', 'player_blocks'
         ]
 
-        for event in events[:8]:  # Limit to avoid rate limits
+        for event in events[:12]:  # Fetch props for up to 12 games
             event_id = event['id']
             home_team = event.get('home_team', '')
             away_team = event.get('away_team', '')

@@ -321,6 +321,33 @@ def refresh_lineups():
         return {"success": False, "error": str(e)}
 
 
+@app.post("/api/props/refresh")
+def refresh_props():
+    """Force refresh player props from Odds API (clears cache)."""
+    from pathlib import Path
+    props_cache = Path('C:/Users/user/CourtMind/models/props_cache.json')
+
+    # Clear cache
+    if props_cache.exists():
+        props_cache.unlink()
+        print("[API] Cleared props cache")
+
+    # Fetch fresh props
+    from models.odds_fetcher import fetch_player_props
+    props_data = fetch_player_props()
+
+    if 'error' in props_data and props_data.get('error'):
+        return {"success": False, "error": props_data['error']}
+
+    player_count = len(props_data.get('props', {}))
+    return {
+        "success": True,
+        "message": f"Refreshed props for {player_count} players",
+        "player_count": player_count,
+        "updated": props_data.get('updated')
+    }
+
+
 @app.post("/api/games/generate")
 def generate_todays_games():
     """Generate and cache today's games with predictions and odds. This is slow - run daily."""
