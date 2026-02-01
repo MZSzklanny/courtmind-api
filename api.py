@@ -27,7 +27,10 @@ from models.predictor import PlayerPredictor
 from models.odds_fetcher import (
     fetch_game_odds, get_player_prop_line, get_api_key, TEAM_FULL_NAMES
 )
-from models.nba_lineups_fetcher import TODAYS_LINEUPS
+from models.nba_lineups_fetcher import (
+    TODAYS_LINEUPS, get_todays_official_lineups, refresh_lineups_from_rotowire
+)
+from models.rotowire_scraper import scrape_rotowire_lineups, save_lineups
 from models.bet_tracker import (
     get_tracking_stats, check_results, get_todays_predictions,
     log_daily_predictions, get_daily_tracking_stats, log_daily_picks,
@@ -278,6 +281,44 @@ def get_todays_games():
     if cached:
         return cached
     return {"games": [], "count": 0, "message": "No games cached. Run POST /api/games/generate first."}
+
+
+# ============================================================================
+# LINEUP ENDPOINTS
+# ============================================================================
+
+@app.get("/api/lineups")
+def get_lineups():
+    """Get today's starting lineups."""
+    try:
+        lineups = get_todays_official_lineups()
+        return {
+            "lineups": lineups,
+            "count": len(lineups),
+            "date": datetime.now().strftime('%Y-%m-%d')
+        }
+    except Exception as e:
+        return {"lineups": {}, "count": 0, "error": str(e)}
+
+
+@app.post("/api/lineups/refresh")
+def refresh_lineups():
+    """Force refresh lineups from Rotowire."""
+    try:
+        print("[API] Refreshing lineups from Rotowire...")
+        data = scrape_rotowire_lineups()
+        if data and data.get('lineups'):
+            save_lineups(data)
+            return {
+                "success": True,
+                "message": f"Refreshed {len(data['lineups'])} team lineups",
+                "lineups": data['lineups'],
+                "count": len(data['lineups']),
+                "scraped_at": data.get('scraped_at')
+            }
+        return {"success": False, "message": "No lineups found on Rotowire"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 
 @app.post("/api/games/generate")
@@ -865,16 +906,29 @@ def grade_yesterdays_predictions(date: str = None):
 async def startup_regenerate_cache():
     """
     Regenerate games and picks cache on server startup.
-    Only regenerates if cache is empty/stale to avoid unnecessary API calls.
+    1. First refresh lineups from Rotowire
+    2. Only regenerates if cache is empty/stale to avoid unnecessary API calls.
     """
     import asyncio
 
     async def regen():
         await asyncio.sleep(3)  # Wait for server to be ready
         try:
-            # Check if games cache exists and is from today
-            games_cache = load_games_cache()
             today = datetime.now().strftime('%Y-%m-%d')
+
+            # STEP 1: Refresh lineups from Rotowire
+            print("[STARTUP] Refreshing lineups from Rotowire...")
+            try:
+                lineups = refresh_lineups_from_rotowire()
+                if lineups:
+                    print(f"[STARTUP] Loaded {len(lineups)} team lineups from Rotowire")
+                else:
+                    print("[STARTUP] Using cached/fallback lineups")
+            except Exception as e:
+                print(f"[STARTUP] Lineup refresh failed: {e}, using fallback")
+
+            # STEP 2: Check if games cache exists and is from today
+            games_cache = load_games_cache()
 
             if games_cache and games_cache.get('date') == today:
                 print(f"[STARTUP] Games cache exists for {today}, skipping regeneration")

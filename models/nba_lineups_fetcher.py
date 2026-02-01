@@ -2,17 +2,27 @@
 """
 NBA Official Lineups Fetcher
 ============================
-Fetches starting lineups from NBA.com
+Fetches starting lineups from Rotowire automatically.
+Falls back to hardcoded lineups if scraping fails.
 """
 
-import requests
-from bs4 import BeautifulSoup
 from datetime import datetime
 import json
 from pathlib import Path
 
-CACHE_FILE = Path('C:/Users/user/CourtMind/nba_lineups_cache.json')
-CACHE_DURATION_MINUTES = 30
+# Try to import the scraper
+try:
+    from models.rotowire_scraper import get_todays_lineups as scrape_lineups, scrape_rotowire_lineups, save_lineups
+    SCRAPER_AVAILABLE = True
+except ImportError:
+    try:
+        from rotowire_scraper import get_todays_lineups as scrape_lineups, scrape_rotowire_lineups, save_lineups
+        SCRAPER_AVAILABLE = True
+    except ImportError:
+        SCRAPER_AVAILABLE = False
+        print("[LINEUPS] Warning: Rotowire scraper not available, using hardcoded lineups")
+
+CACHE_FILE = Path('C:/Users/user/CourtMind/data/rotowire_lineups.json')
 
 # Team abbreviation mappings
 TEAM_ABBREV = {
@@ -162,28 +172,73 @@ TODAYS_LINEUPS = {
 }
 
 
-def get_todays_official_lineups():
-    """Get today's official starting lineups"""
+def refresh_lineups_from_rotowire():
+    """Force refresh lineups from Rotowire."""
+    if SCRAPER_AVAILABLE:
+        try:
+            print("[LINEUPS] Refreshing lineups from Rotowire...")
+            data = scrape_rotowire_lineups()
+            if data and data.get('lineups'):
+                save_lineups(data)
+                print(f"[LINEUPS] Refreshed {len(data['lineups'])} team lineups")
+                return data['lineups']
+        except Exception as e:
+            print(f"[LINEUPS] Scraping failed: {e}")
+    return None
+
+
+def get_todays_official_lineups(use_scraper=True):
+    """Get today's official starting lineups.
+
+    Args:
+        use_scraper: If True, try to use scraped data first. Falls back to hardcoded.
+
+    Returns:
+        Dict of team lineups with starters.
+    """
+    if use_scraper and SCRAPER_AVAILABLE:
+        try:
+            scraped = scrape_lineups()
+            if scraped:
+                print(f"[LINEUPS] Using scraped lineups for {len(scraped)} teams")
+                return scraped
+        except Exception as e:
+            print(f"[LINEUPS] Scraper error: {e}, falling back to hardcoded")
+
+    print("[LINEUPS] Using hardcoded fallback lineups")
     return TODAYS_LINEUPS
 
 
-def get_team_starters(team_abbrev):
-    """Get starters for a specific team"""
-    return TODAYS_LINEUPS.get(team_abbrev, {}).get('starters', [])
+def get_team_starters(team_abbrev, use_scraper=True):
+    """Get starters for a specific team."""
+    lineups = get_todays_official_lineups(use_scraper)
+    return lineups.get(team_abbrev, {}).get('starters', [])
 
 
-def get_all_todays_starters():
-    """Get flat list of all players starting today"""
+def get_all_todays_starters(use_scraper=True):
+    """Get flat list of all players starting today."""
+    lineups = get_todays_official_lineups(use_scraper)
     all_starters = []
-    for team, data in TODAYS_LINEUPS.items():
+    for team, data in lineups.items():
         all_starters.extend(data.get('starters', []))
     return all_starters
 
 
 if __name__ == "__main__":
-    print("Today's Official NBA Lineups:")
-    print("=" * 50)
-    for team, data in sorted(TODAYS_LINEUPS.items()):
-        print(f"\n{team} vs {data['opponent']}:")
-        for i, player in enumerate(data['starters'], 1):
+    print("=" * 60)
+    print("NBA Lineups Fetcher")
+    print("=" * 60)
+
+    # Try scraper first
+    if SCRAPER_AVAILABLE:
+        print("\nTrying Rotowire scraper...")
+        lineups = get_todays_official_lineups(use_scraper=True)
+    else:
+        print("\nScraper not available, using hardcoded lineups...")
+        lineups = TODAYS_LINEUPS
+
+    print(f"\nLoaded lineups for {len(lineups)} teams:")
+    for team, data in sorted(lineups.items()):
+        print(f"\n{team} vs {data.get('opponent', '?')}:")
+        for i, player in enumerate(data.get('starters', []), 1):
             print(f"  {i}. {player}")
