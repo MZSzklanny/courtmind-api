@@ -859,30 +859,41 @@ def grade_yesterdays_predictions(date: str = None):
 
 
 # =============================================================================
-# STARTUP EVENT - Regenerate cache on server start
+# STARTUP EVENT - Regenerate cache on server start (only if needed)
 # =============================================================================
 @app.on_event("startup")
 async def startup_regenerate_cache():
     """
     Regenerate games and picks cache on server startup.
-    Render free tier has ephemeral storage - cache files get wiped on restart.
+    Only regenerates if cache is empty/stale to avoid unnecessary API calls.
     """
     import asyncio
 
     async def regen():
-        await asyncio.sleep(5)  # Wait for server to be fully ready
+        await asyncio.sleep(3)  # Wait for server to be ready
         try:
-            print("[STARTUP] Regenerating games cache...")
-            generate_games()
-            print("[STARTUP] Games cache done")
+            # Check if games cache exists and is from today
+            games_cache = load_games_cache()
+            today = datetime.now().strftime('%Y-%m-%d')
 
-            print("[STARTUP] Regenerating top picks cache...")
-            generate_top_picks(limit=10)
-            print("[STARTUP] Top picks cache done")
+            if games_cache and games_cache.get('date') == today:
+                print(f"[STARTUP] Games cache exists for {today}, skipping regeneration")
+            else:
+                print("[STARTUP] No valid games cache, regenerating...")
+                generate_games()
+                print("[STARTUP] Games cache regenerated")
 
-            print("[STARTUP] Cache regeneration complete!")
+            # Check picks cache
+            picks_cache = load_top_picks_cache()
+            if picks_cache and picks_cache.get('date') == today:
+                print(f"[STARTUP] Picks cache exists for {today}, skipping regeneration")
+            else:
+                print("[STARTUP] No valid picks cache, regenerating...")
+                generate_top_picks(limit=10)
+                print("[STARTUP] Picks cache regenerated")
+
         except Exception as e:
-            print(f"[STARTUP] Cache regen error: {e}")
+            print(f"[STARTUP] Cache check/regen error: {e}")
 
     asyncio.create_task(regen())
 

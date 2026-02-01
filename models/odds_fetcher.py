@@ -16,30 +16,32 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Cache file for odds (avoid hitting API too often)
 CACHE_FILE = BASE_DIR / 'odds_cache.json'
-CACHE_DURATION = timedelta(hours=1)
+CACHE_DURATION = timedelta(hours=6)  # Only refresh every 6 hours
 
 # The Odds API
 ODDS_API_URL = "https://api.the-odds-api.com/v4"
 SPORT = "basketball_nba"
 
 # You can get a free API key at https://the-odds-api.com/
-# Free tier: 500 requests/month
-API_KEY = os.environ.get('ODDS_API_KEY', '')
+API_KEY = None
 
 
 def get_api_key():
-    """Get API key from environment or file."""
+    """Get API key from file first, then environment."""
     global API_KEY
     if API_KEY:
         return API_KEY
 
-    # Try to read from file
+    # Try to read from file first (takes priority)
     key_file = BASE_DIR / 'odds_api_key.txt'
     if key_file.exists():
         API_KEY = key_file.read_text().strip()
-        return API_KEY
+        if API_KEY:
+            return API_KEY
 
-    return None
+    # Fallback to environment variable
+    API_KEY = os.environ.get('ODDS_API_KEY', '')
+    return API_KEY if API_KEY else None
 
 
 def load_cache():
