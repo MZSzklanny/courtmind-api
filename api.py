@@ -37,6 +37,7 @@ from models.bet_tracker import (
     generate_daily_predictions, grade_daily_picks
 )
 from models.auto_grader import grade_predictions_for_date, regrade_date, grade_all_ungraded
+from models.model_feedback import analyze_performance, calculate_calibration_adjustments, save_feedback
 
 app = FastAPI(
     title="CourtMind AI API",
@@ -1040,6 +1041,46 @@ def auto_grade_all():
             "dates_graded": len(results),
             "results": results
         }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.get("/api/model/feedback")
+def get_model_feedback():
+    """
+    Get model performance analysis and calibration recommendations.
+
+    Returns performance by confidence, stat type, edge, and suggested adjustments.
+    """
+    try:
+        analysis = analyze_performance()
+        adjustments = calculate_calibration_adjustments()
+
+        # Convert numpy types to native Python types for JSON serialization
+        def convert_numpy(obj):
+            if hasattr(obj, 'item'):
+                return obj.item()
+            elif isinstance(obj, dict):
+                return {k: convert_numpy(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_numpy(i) for i in obj]
+            return obj
+
+        return {
+            "status": "success",
+            "analysis": convert_numpy(analysis),
+            "calibration": convert_numpy(adjustments)
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.post("/api/model/save-feedback")
+def save_model_feedback():
+    """Save current model feedback analysis to file."""
+    try:
+        feedback = save_feedback()
+        return {"status": "success", "message": "Feedback saved", "generated_at": feedback['generated_at']}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
