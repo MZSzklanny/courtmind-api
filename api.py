@@ -36,6 +36,7 @@ from models.bet_tracker import (
     log_daily_predictions, get_daily_tracking_stats, log_daily_picks,
     generate_daily_predictions, grade_daily_picks
 )
+from models.auto_grader import grade_predictions_for_date, regrade_date, grade_all_ungraded
 
 app = FastAPI(
     title="CourtMind AI API",
@@ -1003,6 +1004,44 @@ def grade_yesterdays_predictions(date: str = None):
     """Grade predictions for a specific date (defaults to yesterday)"""
     result = grade_daily_picks(df, date)
     return result
+
+
+@app.post("/api/tracking/auto-grade")
+def auto_grade_predictions(date: str = None, regrade: bool = False):
+    """
+    Auto-grade predictions using real NBA stats from NBA API.
+
+    Args:
+        date: Date to grade (YYYY-MM-DD format, defaults to yesterday)
+        regrade: If True, re-grade even if already graded
+    """
+    try:
+        from datetime import datetime, timedelta
+        if date is None:
+            date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+
+        if regrade:
+            result = regrade_date(date)
+        else:
+            result = grade_predictions_for_date(date)
+
+        return {"status": "success", **result}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.post("/api/tracking/auto-grade-all")
+def auto_grade_all():
+    """Auto-grade all ungraded predictions using real NBA stats."""
+    try:
+        results = grade_all_ungraded()
+        return {
+            "status": "success",
+            "dates_graded": len(results),
+            "results": results
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 
 # =============================================================================

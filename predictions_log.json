@@ -98,8 +98,8 @@
     "confidence": 71.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820008",
-    "result": null,
-    "hit": null
+    "result": 8.0,
+    "hit": true
   },
   {
     "game_date": "2026-01-31",
@@ -132,7 +132,7 @@
     "confidence": 50.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820011",
-    "result": 7.0,
+    "result": 5.0,
     "hit": true
   },
   {
@@ -166,8 +166,8 @@
     "confidence": 71.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820014",
-    "result": null,
-    "hit": null
+    "result": 19.0,
+    "hit": false
   },
   {
     "game_date": "2026-01-31",
@@ -183,8 +183,8 @@
     "confidence": 47.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820028",
-    "result": null,
-    "hit": null
+    "result": 5,
+    "hit": true
   },
   {
     "game_date": "2026-01-31",
@@ -200,8 +200,8 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820033",
-    "result": null,
-    "hit": null
+    "result": 253,
+    "hit": false
   },
   {
     "game_date": "2026-01-31",
@@ -217,8 +217,8 @@
     "confidence": 68.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820039",
-    "result": null,
-    "hit": null
+    "result": 10,
+    "hit": true
   },
   {
     "game_date": "2026-01-31",
@@ -234,8 +234,8 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820043",
-    "result": null,
-    "hit": null
+    "result": 238,
+    "hit": true
   },
   {
     "game_date": "2026-01-31",
@@ -251,8 +251,8 @@
     "confidence": 91.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820047",
-    "result": null,
-    "hit": null
+    "result": -7,
+    "hit": false
   },
   {
     "game_date": "2026-01-31",
@@ -268,8 +268,8 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820050",
-    "result": null,
-    "hit": null
+    "result": 243,
+    "hit": true
   },
   {
     "game_date": "2026-01-31",
@@ -285,8 +285,8 @@
     "confidence": 52.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820053",
-    "result": null,
-    "hit": null
+    "result": -17,
+    "hit": false
   },
   {
     "game_date": "2026-01-31",
@@ -302,8 +302,8 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820055",
-    "result": null,
-    "hit": null
+    "result": 245,
+    "hit": true
   },
   {
     "game_date": "2026-01-31",
@@ -319,8 +319,8 @@
     "confidence": 41.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820058",
-    "result": null,
-    "hit": null
+    "result": 4,
+    "hit": false
   },
   {
     "game_date": "2026-01-31",
@@ -336,8 +336,8 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:37.820061",
-    "result": null,
-    "hit": null
+    "result": 218,
+    "hit": false
   },
   {
     "game_date": "2026-01-31",
@@ -353,8 +353,8 @@
     "confidence": 71.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:44.787285",
-    "result": null,
-    "hit": null
+    "result": 8.0,
+    "hit": true
   },
   {
     "game_date": "2026-01-31",
@@ -370,7 +370,7 @@
     "confidence": 78.0,
     "book": "DK",
     "logged_at": "2026-01-31T17:58:44.787289",
-    "result": 9.0,
+    "result": 11.0,
     "hit": false
   },
   {
@@ -404,8 +404,8 @@
     "confidence": 78.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775184",
-    "result": null,
-    "hit": null
+    "result": 0.0,
+    "hit": false
   },
   {
     "game_date": "2026-02-01",
@@ -455,8 +455,8 @@
     "confidence": 78.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775205",
-    "result": 1.0,
-    "hit": false
+    "result": 10.0,
+    "hit": true
   },
   {
     "game_date": "2026-02-01",
@@ -574,7 +574,7 @@
     "confidence": 86.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775235",
-    "result": 28.0,
+    "result": 28,
     "hit": true
   },
   {
@@ -591,7 +591,7 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775245",
-    "result": 186.0,
+    "result": 186,
     "hit": false
   },
   {
@@ -608,7 +608,7 @@
     "confidence": 91.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775252",
-    "result": 53.0,
+    "result": 53,
     "hit": true
   },
   {
@@ -625,7 +625,7 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775256",
-    "result": 207.0,
+    "result": 207,
     "hit": false
   },
   {
@@ -642,7 +642,7 @@
     "confidence": 91.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775261",
-    "result": 43.0,
+    "result": 43,
     "hit": true
   },
   {
@@ -659,7 +659,7 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775264",
-    "result": 225.0,
+    "result": 225,
     "hit": false
   },
   {
@@ -676,7 +676,7 @@
     "confidence": 23.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775267",
-    "result": 4.0,
+    "result": 4,
     "hit": true
   },
   {
@@ -693,7 +693,7 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775270",
-    "result": 228.0,
+    "result": 228,
     "hit": false
   },
   {
@@ -710,7 +710,7 @@
     "confidence": 77.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775274",
-    "result": 7.0,
+    "result": 7,
     "hit": false
   },
   {
@@ -727,7 +727,7 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775277",
-    "result": 207.0,
+    "result": 207,
     "hit": false
   },
   {
@@ -744,7 +744,7 @@
     "confidence": 49.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775280",
-    "result": 12.0,
+    "result": 12,
     "hit": true
   },
   {
@@ -761,7 +761,7 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775283",
-    "result": 212.0,
+    "result": 212,
     "hit": true
   },
   {
@@ -778,7 +778,7 @@
     "confidence": 86.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775285",
-    "result": 9.0,
+    "result": 9,
     "hit": true
   },
   {
@@ -795,7 +795,7 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775288",
-    "result": 215.0,
+    "result": 215,
     "hit": true
   },
   {
@@ -812,7 +812,7 @@
     "confidence": 49.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775291",
-    "result": -24.0,
+    "result": -24,
     "hit": false
   },
   {
@@ -829,7 +829,7 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775293",
-    "result": 210.0,
+    "result": 210,
     "hit": false
   },
   {
@@ -846,7 +846,7 @@
     "confidence": 18.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775296",
-    "result": -19.0,
+    "result": -19,
     "hit": false
   },
   {
@@ -863,7 +863,7 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775298",
-    "result": 241.0,
+    "result": 241,
     "hit": true
   },
   {
@@ -880,7 +880,7 @@
     "confidence": 12.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775301",
-    "result": -10.0,
+    "result": -10,
     "hit": false
   },
   {
@@ -897,7 +897,7 @@
     "confidence": 65.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775304",
-    "result": 232.0,
+    "result": 232,
     "hit": false
   }
 ]
