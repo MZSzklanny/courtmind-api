@@ -885,8 +885,77 @@ def generate_top_picks(limit: int = 10):
 
 @app.get("/api/daily-tracking")
 def get_daily_tracking():
-    """Get comprehensive daily tracking statistics"""
-    stats = get_daily_tracking_stats()
+    """Get comprehensive daily tracking statistics from predictions_log"""
+    # Use predictions_log.json data (via get_tracking_stats) and convert to frontend format
+    tracking = get_tracking_stats()
+
+    # Build stats in the format frontend expects
+    stats = {
+        'total_days': len(set(p.get('game_date', '') for p in tracking.get('recent', []))),
+        'spread': {'picks': 0, 'hits': 0, 'rate': 0, 'pending': 0},
+        'ou': {'picks': 0, 'hits': 0, 'rate': 0, 'pending': 0},
+        'ml': {'picks': 0, 'hits': 0, 'rate': 0, 'pending': 0},
+        'props': {'picks': 0, 'hits': 0, 'rate': 0, 'pending': 0},
+        'by_date': [],
+        'recent_picks': [],
+        'pending_picks': [],
+        'overall': {
+            'picks': tracking.get('graded_picks', 0),
+            'hits': tracking.get('hits', 0),
+            'rate': tracking.get('hit_rate', 0)
+        }
+    }
+
+    # Load predictions for detailed breakdown
+    from models.bet_tracker import load_predictions
+    predictions = load_predictions()
+
+    for pred in predictions:
+        ptype = pred.get('type', 'PLAYER_PROP')
+        hit = pred.get('hit')
+        result = pred.get('result')
+
+        # Map type to category
+        if ptype == 'GAME_SPREAD':
+            cat = 'spread'
+        elif ptype == 'GAME_TOTAL':
+            cat = 'ou'
+        elif ptype == 'GAME_ML':
+            cat = 'ml'
+        else:
+            cat = 'props'
+
+        if hit is not None:
+            stats[cat]['picks'] += 1
+            if hit:
+                stats[cat]['hits'] += 1
+
+            # Add to recent picks
+            stats['recent_picks'].append({
+                'date': pred.get('game_date'),
+                'type': ptype,
+                'pick': f"{pred.get('player', pred.get('matchup', ''))} {pred.get('direction', '')} {pred.get('line', '')} {pred.get('stat', '')}",
+                'result': f"Actual: {result}",
+                'hit': hit,
+                'edge': pred.get('edge', 0)
+            })
+        else:
+            stats[cat]['pending'] += 1
+            stats['pending_picks'].append({
+                'date': pred.get('game_date'),
+                'type': ptype,
+                'pick': f"{pred.get('player', pred.get('matchup', ''))} {pred.get('direction', '')} {pred.get('line', '')} {pred.get('stat', '')}",
+                'edge': pred.get('edge', 0)
+            })
+
+    # Calculate rates
+    for cat in ['spread', 'ou', 'ml', 'props']:
+        if stats[cat]['picks'] > 0:
+            stats[cat]['rate'] = round((stats[cat]['hits'] / stats[cat]['picks']) * 100, 1)
+
+    # Sort recent picks by date
+    stats['recent_picks'] = sorted(stats['recent_picks'], key=lambda x: x.get('date', ''), reverse=True)[:50]
+
     return stats
 
 
