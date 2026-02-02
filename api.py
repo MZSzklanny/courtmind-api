@@ -659,8 +659,34 @@ def generate_top_picks(limit: int = 10):
     """
     Generate and cache top picks of the day.
     This is slow (~30-60s) - run once daily, not on every request.
+
+    Applies calibration adjustments based on model feedback:
+    - Confidence multiplier: 0.85 (model is slightly overconfident)
+    - Minimum edge thresholds by type
+    - Stat-specific score multipliers
+    - Filters out 10-20% edge player props (historically underperform)
     """
     all_picks = []
+
+    # ==========================================================================
+    # CALIBRATION ADJUSTMENTS (based on model_feedback analysis)
+    # ==========================================================================
+    CALIBRATION = {
+        'confidence_multiplier': 0.85,  # Model is slightly overconfident
+        'min_edge': {
+            'player_prop': 20,  # Need 20%+ edge for player props
+            'spread': 5,        # 5%+ for spreads
+            'total': 5          # 5%+ for totals (they underperform at 40%)
+        },
+        'stat_multipliers': {
+            'POINTS': 0.91,     # Points underperform
+            'REBOUNDS': 1.06,   # Rebounds slightly better
+            'ASSISTS': 1.0,     # Neutral
+            'SPREAD': 1.13,     # Spreads outperform
+            'TOTAL': 0.85       # Totals underperform significantly
+        },
+        'avoid_edge_range': (10, 20)  # 10-20% edge plays underperform (28.6%)
+    }
 
     # Get lineups for player props
     try:
@@ -731,7 +757,10 @@ def generate_top_picks(limit: int = 10):
                     continue
 
                 edge = ((proj - best_line) / best_line) * 100
-                confidence = pred['confidence']
+                raw_confidence = pred['confidence']
+
+                # Apply confidence calibration (model is overconfident)
+                confidence = round(raw_confidence * CALIBRATION['confidence_multiplier'])
 
                 # Filter out suspicious data:
                 # - Edge over 80% is likely bad data (line doesn't exist or wrong player match)
@@ -739,12 +768,25 @@ def generate_top_picks(limit: int = 10):
                 if abs(edge) > 80:
                     continue  # Skip - likely bad data
 
-                # Score = edge * confidence weight
-                # Higher edge + higher confidence = better pick
-                score = abs(edge) * (confidence / 100)
+                # Apply minimum edge threshold for player props
+                min_edge = CALIBRATION['min_edge']['player_prop']
+                if abs(edge) < min_edge:
+                    continue
 
-                # Only include meaningful edges (5-80%)
-                if abs(edge) >= 5:
+                # Filter out 10-20% edge range (historically underperforms at 28.6%)
+                avoid_low, avoid_high = CALIBRATION['avoid_edge_range']
+                if avoid_low <= abs(edge) < avoid_high:
+                    continue  # Skip this edge range
+
+                # Apply stat-specific multiplier
+                stat_upper = prop_type.upper()
+                stat_mult = CALIBRATION['stat_multipliers'].get(stat_upper, 1.0)
+
+                # Score = edge * confidence weight * stat multiplier
+                score = abs(edge) * (confidence / 100) * stat_mult
+
+                # Only include picks that pass all filters
+                if abs(edge) >= min_edge:
                     all_picks.append({
                         'type': 'player_prop',
                         'player': player,
@@ -797,7 +839,9 @@ def generate_top_picks(limit: int = 10):
                 edge = (abs(spread_edge_pts) / max(abs(dk_spread), 3)) * 100
                 edge = min(edge, 50)  # Cap at 50%
 
-                if abs(spread_edge_pts) >= 1.5:  # At least 1.5 point edge
+                # Apply minimum edge threshold for spreads
+                min_edge_spread = CALIBRATION['min_edge']['spread']
+                if edge >= min_edge_spread and abs(spread_edge_pts) >= 1.5:
                     # Determine direction based on model vs line
                     if model_spread < dk_spread:
                         # Model has home winning by more (or losing by less)
@@ -808,7 +852,13 @@ def generate_top_picks(limit: int = 10):
                         pick_team = away_team
                         pick_spread = -dk_spread  # Flip for away
 
-                    conf = round(result['home_win_prob'] if pick_team == home_team else result['away_win_prob'])
+                    raw_conf = round(result['home_win_prob'] if pick_team == home_team else result['away_win_prob'])
+                    # Apply confidence calibration
+                    conf = round(raw_conf * CALIBRATION['confidence_multiplier'])
+
+                    # Apply spread multiplier (spreads outperform)
+                    spread_mult = CALIBRATION['stat_multipliers'].get('SPREAD', 1.0)
+                    score = edge * (conf / 100) * spread_mult
 
                     all_picks.append({
                         'type': 'spread',
@@ -823,7 +873,7 @@ def generate_top_picks(limit: int = 10):
                         'edge': round(edge, 1),
                         'direction': f"{pick_team} {'+' if pick_spread > 0 else ''}{pick_spread}",
                         'confidence': conf,
-                        'score': round(edge * (conf / 100), 2)
+                        'score': round(score, 2)
                     })
 
             # TOTAL
@@ -832,7 +882,17 @@ def generate_top_picks(limit: int = 10):
                 model_total = result['predicted_total']
                 edge = ((model_total - dk_total) / dk_total) * 100
 
-                if abs(edge) >= 3:
+                # Apply minimum edge threshold for totals (they underperform)
+                min_edge_total = CALIBRATION['min_edge']['total']
+                if abs(edge) >= min_edge_total:
+                    # Apply confidence calibration
+                    raw_conf = 65  # Base confidence for totals
+                    conf = round(raw_conf * CALIBRATION['confidence_multiplier'])
+
+                    # Apply total multiplier (totals underperform significantly)
+                    total_mult = CALIBRATION['stat_multipliers'].get('TOTAL', 1.0)
+                    score = abs(edge) * (conf / 100) * total_mult
+
                     all_picks.append({
                         'type': 'total',
                         'player': f"{away_team} @ {home_team}",
@@ -845,8 +905,8 @@ def generate_top_picks(limit: int = 10):
                         'fd_line': None,
                         'edge': round(abs(edge), 1),
                         'direction': 'OVER' if edge > 0 else 'UNDER',
-                        'confidence': 65,  # Base confidence for totals
-                        'score': round(abs(edge) * 0.65, 2)
+                        'confidence': conf,
+                        'score': round(score, 2)
                     })
         except:
             continue
@@ -872,7 +932,14 @@ def generate_top_picks(limit: int = 10):
         "total_evaluated": len(all_picks),
         "date": datetime.now().strftime('%Y-%m-%d'),
         "generated_at": datetime.now().isoformat(),
-        "criteria": "Score = |Edge%| × (Confidence/100)"
+        "criteria": "Score = |Edge%| × (Calibrated Confidence) × Stat Multiplier",
+        "calibration_applied": {
+            "confidence_multiplier": CALIBRATION['confidence_multiplier'],
+            "min_edge_player_prop": CALIBRATION['min_edge']['player_prop'],
+            "min_edge_spread": CALIBRATION['min_edge']['spread'],
+            "min_edge_total": CALIBRATION['min_edge']['total'],
+            "filtered_edge_range": f"{CALIBRATION['avoid_edge_range'][0]}-{CALIBRATION['avoid_edge_range'][1]}%"
+        }
     }
 
     # Save to cache
@@ -953,6 +1020,31 @@ def get_daily_tracking():
 
         # Sort recent picks by date
         stats['recent_picks'] = sorted(stats['recent_picks'], key=lambda x: x.get('date', ''), reverse=True)[:50]
+
+        # Add model feedback metrics
+        try:
+            feedback = analyze_performance()
+            calibration = calculate_calibration_adjustments()
+
+            # Convert numpy types for JSON
+            def convert_numpy(obj):
+                if hasattr(obj, 'item'):
+                    return obj.item()
+                elif isinstance(obj, dict):
+                    return {k: convert_numpy(v) for k, v in obj.items()}
+                elif isinstance(obj, list):
+                    return [convert_numpy(i) for i in obj]
+                return obj
+
+            stats['model_feedback'] = {
+                'by_confidence': convert_numpy(feedback.get('by_confidence', {})),
+                'by_stat': convert_numpy(feedback.get('by_stat', {})),
+                'by_edge': convert_numpy(feedback.get('by_edge', {})),
+                'recommendations': feedback.get('recommendations', []),
+                'calibration': convert_numpy(calibration)
+            }
+        except:
+            stats['model_feedback'] = None
 
         return stats
 
