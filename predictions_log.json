@@ -404,8 +404,8 @@
     "confidence": 78.0,
     "book": "DK",
     "logged_at": "2026-02-01T10:37:31.775184",
-    "result": 0.0,
-    "hit": false
+    "result": null,
+    "hit": null
   },
   {
     "game_date": "2026-02-01",

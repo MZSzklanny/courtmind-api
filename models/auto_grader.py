@@ -45,21 +45,45 @@ def find_player_stats(player_name, stats_df):
         return None
 
     player_lower = normalize_player_name(player_name)
+    player_parts = player_lower.split()
+
+    if len(player_parts) < 2:
+        return None
+
+    first_name = player_parts[0]
+    last_name = player_parts[-1]
 
     # Try exact match first
     for _, row in stats_df.iterrows():
-        if normalize_player_name(row['player']) == player_lower:
+        row_name = normalize_player_name(row['player'])
+        if row_name == player_lower:
+            # Check if player actually played (has minutes)
+            minutes = row.get('minutes', '0:00')
+            if minutes == '0:00' or minutes == '' or minutes is None:
+                return None  # DNP - Did Not Play
             return row
 
-    # Try partial match (last name)
-    last_name = player_lower.split()[-1] if player_lower else ''
+    # Try matching first name + last name (handles middle names, suffixes)
     for _, row in stats_df.iterrows():
         row_name = normalize_player_name(row['player'])
-        if last_name and last_name in row_name:
-            # Verify first name initial matches
-            if player_lower[0] == row_name[0]:
-                return row
+        row_parts = row_name.split()
 
+        if len(row_parts) < 2:
+            continue
+
+        row_first = row_parts[0]
+        row_last = row_parts[-1]
+
+        # Must match FULL first name and last name
+        # This prevents "Miles Bridges" matching "Mikal Bridges"
+        if first_name == row_first and last_name == row_last:
+            # Check if player actually played
+            minutes = row.get('minutes', '0:00')
+            if minutes == '0:00' or minutes == '' or minutes is None:
+                return None  # DNP
+            return row
+
+    # No match found - player likely didn't play or wasn't in the game
     return None
 
 
