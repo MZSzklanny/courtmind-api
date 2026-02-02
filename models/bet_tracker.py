@@ -47,15 +47,30 @@ def log_daily_predictions(picks):
     predictions = load_predictions()
     today = datetime.now().strftime('%Y-%m-%d')
 
-    # Remove any existing predictions for today (in case of re-run)
-    predictions = [p for p in predictions if p.get('game_date') != today]
+    # Get all dates from the incoming picks
+    import_dates = set()
+    for pick in picks:
+        if pick.get('game_date'):
+            import_dates.add(pick['game_date'])
+        else:
+            import_dates.add(today)
+
+    # Remove any existing predictions for dates being imported (in case of re-run)
+    predictions = [p for p in predictions if p.get('game_date') not in import_dates]
 
     # Add new predictions
     for pick in picks:
-        pick['game_date'] = today
-        pick['logged_at'] = datetime.now().isoformat()
-        pick['result'] = None  # Will be filled in later
-        pick['hit'] = None
+        # Preserve existing game_date if provided (for historical imports)
+        if not pick.get('game_date'):
+            pick['game_date'] = today
+        # Preserve existing logged_at if provided
+        if not pick.get('logged_at'):
+            pick['logged_at'] = datetime.now().isoformat()
+        # Preserve existing result/hit if provided (for graded historical data)
+        if 'result' not in pick:
+            pick['result'] = None
+        if 'hit' not in pick:
+            pick['hit'] = None
         predictions.append(pick)
 
     save_predictions(predictions)
