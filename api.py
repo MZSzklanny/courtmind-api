@@ -674,18 +674,18 @@ def generate_top_picks(limit: int = 10):
     CALIBRATION = {
         'confidence_multiplier': 0.85,  # Model is slightly overconfident
         'min_edge': {
-            'player_prop': 20,  # Need 20%+ edge for player props
-            'spread': 5,        # 5%+ for spreads
-            'total': 5          # 5%+ for totals (they underperform at 40%)
+            'player_prop': 20,  # 20%+ edge required (data: <20% loses money)
+            'spread': 20,       # 20%+ edge required
+            'total': 20         # 20%+ edge required
         },
         'stat_multipliers': {
-            'POINTS': 0.91,     # Points underperform
-            'REBOUNDS': 1.06,   # Rebounds slightly better
-            'ASSISTS': 1.0,     # Neutral
-            'SPREAD': 1.13,     # Spreads outperform
-            'TOTAL': 0.85       # Totals underperform significantly
+            'POINTS': 0.89,     # Points underperform (42.9%)
+            'REBOUNDS': 1.25,   # Rebounds outperform (60%)
+            'ASSISTS': 1.0,     # Neutral (limited data)
+            'SPREAD': 1.11,     # Spreads outperform (53.3%)
+            'TOTAL': 0.83       # Totals underperform (40%)
         },
-        'avoid_edge_range': (10, 20)  # 10-20% edge plays underperform (28.6%)
+        'avoid_edge_range': None  # No longer needed - 20% min handles this
     }
 
     # Get lineups for player props
@@ -773,10 +773,11 @@ def generate_top_picks(limit: int = 10):
                 if abs(edge) < min_edge:
                     continue
 
-                # Filter out 10-20% edge range (historically underperforms at 28.6%)
-                avoid_low, avoid_high = CALIBRATION['avoid_edge_range']
-                if avoid_low <= abs(edge) < avoid_high:
-                    continue  # Skip this edge range
+                # Filter out low edge range if configured
+                if CALIBRATION['avoid_edge_range']:
+                    avoid_low, avoid_high = CALIBRATION['avoid_edge_range']
+                    if avoid_low <= abs(edge) < avoid_high:
+                        continue  # Skip this edge range
 
                 # Apply stat-specific multiplier
                 stat_upper = prop_type.upper()
@@ -935,10 +936,8 @@ def generate_top_picks(limit: int = 10):
         "criteria": "Score = |Edge%| × (Calibrated Confidence) × Stat Multiplier",
         "calibration_applied": {
             "confidence_multiplier": CALIBRATION['confidence_multiplier'],
-            "min_edge_player_prop": CALIBRATION['min_edge']['player_prop'],
-            "min_edge_spread": CALIBRATION['min_edge']['spread'],
-            "min_edge_total": CALIBRATION['min_edge']['total'],
-            "filtered_edge_range": f"{CALIBRATION['avoid_edge_range'][0]}-{CALIBRATION['avoid_edge_range'][1]}%"
+            "min_edge_all_types": "20%+",
+            "note": "Only recommending 20%+ edge picks (data shows <20% edge loses money)"
         }
     }
 
