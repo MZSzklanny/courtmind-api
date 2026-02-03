@@ -992,6 +992,17 @@ def get_daily_tracking():
             else:
                 cat = 'props'
 
+            # Format pick string based on type
+            if ptype == 'GAME_SPREAD':
+                # Direction already has team + spread (e.g., "MIA -5.5")
+                pick_str = f"{pred.get('matchup', '')} | {pred.get('direction', '')}"
+            elif ptype == 'GAME_TOTAL':
+                # Show matchup + over/under + line
+                pick_str = f"{pred.get('matchup', '')} | {pred.get('direction', '')} {pred.get('line', '')}"
+            else:
+                # Player props: player + direction + line + stat
+                pick_str = f"{pred.get('player', '')} {pred.get('direction', '')} {pred.get('line', '')} {pred.get('stat', '')}"
+
             if hit is not None:
                 stats[cat]['picks'] += 1
                 if hit:
@@ -999,7 +1010,7 @@ def get_daily_tracking():
                 stats['recent_picks'].append({
                     'date': pred.get('game_date'),
                     'type': ptype,
-                    'pick': f"{pred.get('player', pred.get('matchup', ''))} {pred.get('direction', '')} {pred.get('line', '')} {pred.get('stat', '')}",
+                    'pick': pick_str,
                     'result': f"Actual: {result}",
                     'hit': hit,
                     'edge': pred.get('edge', 0)
@@ -1009,7 +1020,7 @@ def get_daily_tracking():
                 stats['pending_picks'].append({
                     'date': pred.get('game_date'),
                     'type': ptype,
-                    'pick': f"{pred.get('player', pred.get('matchup', ''))} {pred.get('direction', '')} {pred.get('line', '')} {pred.get('stat', '')}",
+                    'pick': pick_str,
                     'edge': pred.get('edge', 0)
                 })
 
