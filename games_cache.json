@@ -1,0 +1,203 @@
+{
+  "games": [
+    {
+      "home_team": "ORL",
+      "away_team": "MIL",
+      "prediction": {
+        "spread": -3.0,
+        "total": 220.5,
+        "home_win_prob": 45
+      },
+      "odds": {
+        "dk_spread": -2.5,
+        "dk_total": 220.5
+      },
+      "picks": ["MIL", "UNDER 220.5"]
+    },
+    {
+      "home_team": "CHA",
+      "away_team": "ATL",
+      "prediction": {
+        "spread": -12.0,
+        "total": 235.5,
+        "home_win_prob": 20
+      },
+      "odds": {
+        "dk_spread": 5.5,
+        "dk_total": 235.5
+      },
+      "picks": ["ATL", "UNDER 235.5"]
+    },
+    {
+      "home_team": "CLE",
+      "away_team": "WAS",
+      "prediction": {
+        "spread": 15.0,
+        "total": 239.5,
+        "home_win_prob": 95
+      },
+      "odds": {
+        "dk_spread": -12.5,
+        "dk_total": 239.5
+      },
+      "picks": ["WAS +12.5", "UNDER 239.5"]
+    },
+    {
+      "home_team": "TOR",
+      "away_team": "DET",
+      "prediction": {
+        "spread": 8.0,
+        "total": 222.5,
+        "home_win_prob": 80
+      },
+      "odds": {
+        "dk_spread": -5.5,
+        "dk_total": 222.5
+      },
+      "picks": ["TOR", "UNDER 222.5"]
+    },
+    {
+      "home_team": "PHI",
+      "away_team": "NYK",
+      "prediction": {
+        "spread": -3.0,
+        "total": 224.5,
+        "home_win_prob": 40
+      },
+      "odds": {
+        "dk_spread": 2.5,
+        "dk_total": 224.5
+      },
+      "picks": ["NYK", "UNDER 224.5"]
+    },
+    {
+      "home_team": "BOS",
+      "away_team": "CHI",
+      "prediction": {
+        "spread": 12.0,
+        "total": 226.5,
+        "home_win_prob": 90
+      },
+      "odds": {
+        "dk_spread": -11.5,
+        "dk_total": 226.5
+      },
+      "picks": ["CHI +11.5", "UNDER 226.5"]
+    },
+    {
+      "home_team": "BKN",
+      "away_team": "IND",
+      "prediction": {
+        "spread": -6.0,
+        "total": 215.5,
+        "home_win_prob": 25
+      },
+      "odds": {
+        "dk_spread": 4.5,
+        "dk_total": 215.5
+      },
+      "picks": ["IND", "UNDER 215.5"]
+    },
+    {
+      "home_team": "HOU",
+      "away_team": "LAC",
+      "prediction": {
+        "spread": 5.0,
+        "total": 211.5,
+        "home_win_prob": 65
+      },
+      "odds": {
+        "dk_spread": -3.5,
+        "dk_total": 211.5
+      },
+      "picks": ["LAC +3.5", "UNDER 211.5"]
+    },
+    {
+      "home_team": "NOP",
+      "away_team": "MIA",
+      "prediction": {
+        "spread": -18.0,
+        "total": 233.5,
+        "home_win_prob": 10
+      },
+      "odds": {
+        "dk_spread": 7.5,
+        "dk_total": 233.5
+      },
+      "picks": ["MIA", "UNDER 233.5"]
+    },
+    {
+      "home_team": "MIN",
+      "away_team": "POR",
+      "prediction": {
+        "spread": 8.0,
+        "total": 236.5,
+        "home_win_prob": 75
+      },
+      "odds": {
+        "dk_spread": -9.5,
+        "dk_total": 236.5
+      },
+      "picks": ["POR +9.5", "UNDER 236.5"]
+    },
+    {
+      "home_team": "PHX",
+      "away_team": "OKC",
+      "prediction": {
+        "spread": -5.0,
+        "total": 213.5,
+        "home_win_prob": 30
+      },
+      "odds": {
+        "dk_spread": 6.5,
+        "dk_total": 213.5
+      },
+      "picks": ["PHX +6.5", "UNDER 213.5"]
+    },
+    {
+      "home_team": "DEN",
+      "away_team": "MEM",
+      "prediction": {
+        "spread": 2.0,
+        "total": 238.5,
+        "home_win_prob": 55
+      },
+      "odds": {
+        "dk_spread": -5.5,
+        "dk_total": 238.5
+      },
+      "picks": ["MEM +5.5", "UNDER 238.5"]
+    },
+    {
+      "home_team": "UTA",
+      "away_team": "SAC",
+      "prediction": {
+        "spread": -8.0,
+        "total": 230.5,
+        "home_win_prob": 20
+      },
+      "odds": {
+        "dk_spread": 6.5,
+        "dk_total": 230.5
+      },
+      "picks": ["SAC", "UNDER 230.5"]
+    },
+    {
+      "home_team": "GSW",
+      "away_team": "SAS",
+      "prediction": {
+        "spread": 10.0,
+        "total": 220.5,
+        "home_win_prob": 85
+      },
+      "odds": {
+        "dk_spread": -8.5,
+        "dk_total": 220.5
+      },
+      "picks": ["GSW", "UNDER 220.5"]
+    }
+  ],
+  "count": 14,
+  "generated_at": "2026-02-11T17:45:00",
+  "date": "2026-02-11"
+}
