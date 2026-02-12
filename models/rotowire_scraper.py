@@ -13,7 +13,9 @@ from pathlib import Path
 import re
 
 ROTOWIRE_URL = "https://www.rotowire.com/basketball/nba-lineups.php"
-CACHE_FILE = Path('C:/Users/user/CourtMind/data/rotowire_lineups.json')
+# Use path relative to this file - works on both Windows (local) and Linux (Render)
+BASE_DIR = Path(__file__).resolve().parent.parent
+CACHE_FILE = BASE_DIR / 'data' / 'rotowire_lineups.json'
 
 # Ensure data directory exists
 CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
