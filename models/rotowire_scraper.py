@@ -103,47 +103,61 @@ def scrape_rotowire_lineups():
             away_list = lineup_lists[0]
             home_list = lineup_lists[1]
 
-            # Extract starters (first 5 players in each list)
+            # Extract starters and OUT players from each lineup list
             away_starters = []
             home_starters = []
             away_out = []
             home_out = []
 
-            # Process away team
-            away_players = away_list.find_all('li', class_='lineup__player')
-            for i, player in enumerate(away_players[:5]):
-                player_link = player.find('a')
-                if player_link:
+            def parse_lineup_list(lineup_list):
+                """Parse a single team's lineup list for starters and Out players."""
+                starters = []
+                out_players = []
+
+                players = lineup_list.find_all('li', class_='lineup__player')
+                starter_count = 0
+
+                for player_li in players:
+                    player_link = player_li.find('a')
+                    if not player_link:
+                        continue
+
                     name = player_link.get_text(strip=True)
                     # Clean up name (remove position prefix like "PG ", "SG ", etc.)
                     name = re.sub(r'^[PGSFPC]{1,2}\s+', '', name)
-                    away_starters.append(name)
 
-            # Process home team
-            home_players = home_list.find_all('li', class_='lineup__player')
-            for i, player in enumerate(home_players[:5]):
-                player_link = player.find('a')
-                if player_link:
-                    name = player_link.get_text(strip=True)
-                    name = re.sub(r'^[PGSFPC]{1,2}\s+', '', name)
-                    home_starters.append(name)
+                    classes = player_li.get('class', [])
 
-            # Find OUT players
-            injury_sections = card.find_all('div', class_='lineup__inj')
-            for section in injury_sections:
-                injury_items = section.find_all('li')
-                for item in injury_items:
-                    status = item.find('span', class_='lineup__inj-status')
-                    if status and 'Out' in status.get_text():
-                        player_link = item.find('a')
-                        if player_link:
-                            out_name = player_link.get_text(strip=True)
-                            # Determine which team based on position in card
-                            # This is approximate - may need refinement
-                            if section in card.find_all('div', class_='lineup__inj')[:1]:
-                                away_out.append(out_name)
-                            else:
-                                home_out.append(out_name)
+                    # is-pct-play-0 = definitely Out
+                    # OFS = out for season (also skip)
+                    inj_span = player_li.find('span', class_='lineup__inj')
+                    status = inj_span.get_text(strip=True) if inj_span else ''
+
+                    if 'is-pct-play-0' in classes and status == 'Out':
+                        out_players.append(name)
+                    elif status not in ('OFS',) and starter_count < 5 and 'is-pct-play-0' not in classes:
+                        # Count as starter if in first 5 non-OFS players
+                        # Only add to starters if before MAY NOT PLAY section
+                        title_before = lineup_list.find('li', class_='lineup__title')
+                        if title_before:
+                            # Get all items before the MAY NOT PLAY title
+                            before_title = []
+                            for item in lineup_list.find_all('li'):
+                                if 'lineup__title' in item.get('class', []):
+                                    break
+                                before_title.append(item)
+                            if player_li in before_title and 'lineup__player' in classes:
+                                starters.append(name)
+                                starter_count += 1
+                        else:
+                            if 'lineup__player' in classes and starter_count < 5:
+                                starters.append(name)
+                                starter_count += 1
+
+                return starters, out_players
+
+            away_starters, away_out = parse_lineup_list(away_list)
+            home_starters, home_out = parse_lineup_list(home_list)
 
             # Store lineups
             if away_starters:
