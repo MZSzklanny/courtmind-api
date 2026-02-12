@@ -58,12 +58,22 @@ def log_daily_predictions(picks):
     # Remove any existing predictions for dates being imported (in case of re-run)
     predictions = [p for p in predictions if p.get('game_date') not in import_dates]
 
-    # Add new predictions (filter out low lines < 4.5)
+    # Add new predictions (filter by prop type: PTS 8+, AST/REB 4.5+, edge 25%+)
     for pick in picks:
-        # Filter out low-quality props (lines under 4.5)
+        # Filter out low-quality props based on stat type
         line = pick.get('line', 0)
-        if line > 0 and line < 4.5:
-            continue  # Skip this pick
+        stat = pick.get('stat', '').upper()
+        edge = abs(pick.get('edge', 0))
+
+        # Skip if edge < 25%
+        if edge < 25:
+            continue
+
+        # Filter by line based on prop type
+        if stat == 'POINTS' and line < 8:
+            continue  # Skip low points lines (under 8)
+        elif stat in ['ASSISTS', 'REBOUNDS'] and line < 4.5:
+            continue  # Skip low AST/REB lines (under 4.5)
 
         # Preserve existing game_date if provided (for historical imports)
         if not pick.get('game_date'):

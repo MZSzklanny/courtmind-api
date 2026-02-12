@@ -409,8 +409,9 @@ def generate_todays_games():
         if away_team in official_lineups:
             game_players.extend([(p, away_team, home_team) for p in official_lineups[away_team].get('starters', [])])
 
-        MIN_EDGE_GAME = 10  # 10% minimum edge for game top plays
-        MIN_LINE = 4.5  # Filter out low lines (under 4.5) - usually low-quality props
+        MIN_EDGE_GAME = 25  # 25% minimum edge for top quality picks
+        MIN_LINE_PTS = 8    # Points must be 8+ (quality picks)
+        MIN_LINE_OTHER = 4.5  # Assists/Rebounds must be 4.5+ (avoid low-quality)
 
         for player_name, team, opp in game_players:
             try:
@@ -454,9 +455,11 @@ def generate_todays_games():
                     projection = pred[stat_key]
                     edge = ((projection - best_line) / best_line) * 100
 
-                    # Filter: 10%+ edge, <80% edge (bad data), line >= 4.5 (quality check)
-                    if best_line < MIN_LINE:
-                        continue  # Skip low-value props (under 4.5)
+                    # Filter based on prop type: PTS 8+, AST/REB 4.5+, edge 25%+
+                    if prop_key == 'points' and best_line < MIN_LINE_PTS:
+                        continue  # Skip low points lines (under 8)
+                    elif prop_key in ['assists', 'rebounds'] and best_line < MIN_LINE_OTHER:
+                        continue  # Skip low AST/REB lines (under 4.5)
 
                     if abs(edge) >= MIN_EDGE_GAME and abs(edge) < 80:
                         score = abs(edge) * (pred['confidence'] / 100)
@@ -725,7 +728,7 @@ def generate_top_picks(limit: int = 10):
     CALIBRATION = {
         'confidence_multiplier': 0.85,  # Model is slightly overconfident
         'min_edge': {
-            'player_prop': 20,  # 20%+ edge required (data: <20% loses money)
+            'player_prop': 25,  # 25%+ edge required (top quality picks)
             'spread': 20,       # 20%+ edge required
             'total': 20         # 20%+ edge required
         },
@@ -807,8 +810,12 @@ def generate_top_picks(limit: int = 10):
                 if not best_line or best_line <= 0:
                     continue
 
-                # Filter out low lines (under 4.5) - usually low-quality props
-                if best_line < 4.5:
+                # Filter out low lines based on prop type:
+                # - Points: must be 8+ (quality picks only)
+                # - Assists/Rebounds: must be 4.5+ (avoid low-quality props)
+                if prop_type == 'points' and best_line < 8:
+                    continue
+                elif prop_type in ['assists', 'rebounds'] and best_line < 4.5:
                     continue
 
                 edge = ((proj - best_line) / best_line) * 100
