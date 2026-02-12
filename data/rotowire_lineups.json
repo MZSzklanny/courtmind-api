@@ -1,20 +1,20 @@
 {
   "date": "2026-02-12",
-  "scraped_at": "2026-02-12T17:08:18.420177",
+  "scraped_at": "2026-02-12T17:14:35.651889",
   "lineups": {
     "MIL": {
       "opponent": "OKC",
       "home": false,
       "starters": [
-        "R. Rollins",
+        "Ryan Rollins",
         "Kevin Porter",
         "AJ Green",
-        "K. Kuzma",
+        "Kyle Kuzma",
         "Myles Turner"
       ],
       "out": [
-        "G. Antetokounmpo",
-        "T. Prince"
+        "Giannis Antetokounmpo",
+        "Taurean Prince"
       ]
     },
     "OKC": {
@@ -25,14 +25,14 @@
         "Luguentz Dort",
         "Aaron Wiggins",
         "Chet Holmgren",
-        "J. Williams"
+        "Jaylin Williams"
       ],
       "out": [
-        "B. Carlson",
-        "S. Gilgeous-Alexander",
-        "I. Hartenstein",
-        "A. Mitchell",
-        "J. Williams"
+        "Branden Carlson",
+        "Shai Gilgeous-Alexander",
+        "Isaiah Hartenstein",
+        "Ajay Mitchell",
+        "Jalen Williams"
       ]
     },
     "POR": {
@@ -40,31 +40,31 @@
       "home": false,
       "starters": [
         "Jrue Holiday",
-        "T. Camara",
+        "Toumani Camara",
         "Jerami Grant",
-        "D. Avdija",
-        "D. Clingan"
+        "Deni Avdija",
+        "Donovan Clingan"
       ],
       "out": [
-        "K. Murray",
-        "S. Sharpe",
-        "M. Thybulle"
+        "Kris Murray",
+        "Shaedon Sharpe",
+        "Matisse Thybulle"
       ]
     },
     "UTA": {
       "opponent": "POR",
       "home": true,
       "starters": [
-        "I. Collier",
+        "Isaiah Collier",
         "Cody Williams",
         "Ace Bailey",
-        "K. Filipowski",
+        "Kyle Filipowski",
         "Jusuf Nurkic"
       ],
       "out": [
-        "K. George",
-        "E. Harkless",
-        "L. Markkanen"
+        "Keyonte George",
+        "Elijah Harkless",
+        "Lauri Markkanen"
       ]
     },
     "DAL": {
@@ -73,13 +73,13 @@
       "starters": [
         "Tyus Jones",
         "Max Christie",
-        "N. Marshall",
-        "P. Washington",
-        "D. Gafford"
+        "Naji Marshall",
+        "P.J. Washington",
+        "Daniel Gafford"
       ],
       "out": [
-        "C. Flagg",
-        "K. Irving"
+        "Cooper Flagg",
+        "Kyrie Irving"
       ]
     },
     "LAL": {
@@ -93,8 +93,8 @@
         "Jaxson Hayes"
       ],
       "out": [
-        "D. Ayton",
-        "L. Doncic"
+        "Deandre Ayton",
+        "Luka Doncic"
       ]
     }
   },
@@ -103,10 +103,10 @@
       "away": "MIL",
       "home": "OKC",
       "away_starters": [
-        "R. Rollins",
+        "Ryan Rollins",
         "Kevin Porter",
         "AJ Green",
-        "K. Kuzma",
+        "Kyle Kuzma",
         "Myles Turner"
       ],
       "home_starters": [
@@ -114,7 +114,7 @@
         "Luguentz Dort",
         "Aaron Wiggins",
         "Chet Holmgren",
-        "J. Williams"
+        "Jaylin Williams"
       ]
     },
     {
@@ -122,16 +122,16 @@
       "home": "UTA",
       "away_starters": [
         "Jrue Holiday",
-        "T. Camara",
+        "Toumani Camara",
         "Jerami Grant",
-        "D. Avdija",
-        "D. Clingan"
+        "Deni Avdija",
+        "Donovan Clingan"
       ],
       "home_starters": [
-        "I. Collier",
+        "Isaiah Collier",
         "Cody Williams",
         "Ace Bailey",
-        "K. Filipowski",
+        "Kyle Filipowski",
         "Jusuf Nurkic"
       ]
     },
@@ -141,9 +141,9 @@
       "away_starters": [
         "Tyus Jones",
         "Max Christie",
-        "N. Marshall",
-        "P. Washington",
-        "D. Gafford"
+        "Naji Marshall",
+        "P.J. Washington",
+        "Daniel Gafford"
       ],
       "home_starters": [
         "Austin Reaves",

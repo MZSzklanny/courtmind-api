@@ -109,50 +109,53 @@ def scrape_rotowire_lineups():
             away_out = []
             home_out = []
 
+            def get_player_name(player_link):
+                """Get full player name using title attr (full) or text (abbreviated)."""
+                # Prefer title attribute - it has the full name (e.g. 'Shai Gilgeous-Alexander')
+                title = player_link.get('title', '').strip()
+                if title:
+                    return title
+                # Fallback: clean the visible text (e.g. 'S. Gilgeous-Alexander')
+                name = player_link.get_text(strip=True)
+                return re.sub(r'^[PGSFPC]{1,2}\s+', '', name)
+
             def parse_lineup_list(lineup_list):
                 """Parse a single team's lineup list for starters and Out players."""
                 starters = []
                 out_players = []
 
-                players = lineup_list.find_all('li', class_='lineup__player')
+                # Separate players before and after the MAY NOT PLAY title
+                in_may_not_play = False
                 starter_count = 0
 
-                for player_li in players:
-                    player_link = player_li.find('a')
+                for item in lineup_list.find_all('li'):
+                    classes = item.get('class', [])
+
+                    # Detect the MAY NOT PLAY divider
+                    if 'lineup__title' in classes:
+                        in_may_not_play = True
+                        continue
+
+                    if 'lineup__player' not in classes:
+                        continue
+
+                    player_link = item.find('a')
                     if not player_link:
                         continue
 
-                    name = player_link.get_text(strip=True)
-                    # Clean up name (remove position prefix like "PG ", "SG ", etc.)
-                    name = re.sub(r'^[PGSFPC]{1,2}\s+', '', name)
-
-                    classes = player_li.get('class', [])
-
-                    # is-pct-play-0 = definitely Out
-                    # OFS = out for season (also skip)
-                    inj_span = player_li.find('span', class_='lineup__inj')
+                    name = get_player_name(player_link)
+                    inj_span = item.find('span', class_='lineup__inj')
                     status = inj_span.get_text(strip=True) if inj_span else ''
 
-                    if 'is-pct-play-0' in classes and status == 'Out':
-                        out_players.append(name)
-                    elif status not in ('OFS',) and starter_count < 5 and 'is-pct-play-0' not in classes:
-                        # Count as starter if in first 5 non-OFS players
-                        # Only add to starters if before MAY NOT PLAY section
-                        title_before = lineup_list.find('li', class_='lineup__title')
-                        if title_before:
-                            # Get all items before the MAY NOT PLAY title
-                            before_title = []
-                            for item in lineup_list.find_all('li'):
-                                if 'lineup__title' in item.get('class', []):
-                                    break
-                                before_title.append(item)
-                            if player_li in before_title and 'lineup__player' in classes:
-                                starters.append(name)
-                                starter_count += 1
-                        else:
-                            if 'lineup__player' in classes and starter_count < 5:
-                                starters.append(name)
-                                starter_count += 1
+                    if not in_may_not_play:
+                        # Before MAY NOT PLAY = starter section
+                        if starter_count < 5 and status not in ('OFS',):
+                            starters.append(name)
+                            starter_count += 1
+                    else:
+                        # After MAY NOT PLAY = injury section
+                        if status == 'Out' and 'is-pct-play-0' in classes:
+                            out_players.append(name)
 
                 return starters, out_players
 
