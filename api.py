@@ -409,7 +409,8 @@ def generate_todays_games():
         if away_team in official_lineups:
             game_players.extend([(p, away_team, home_team) for p in official_lineups[away_team].get('starters', [])])
 
-        MIN_EDGE_GAME = 10  # 10% minimum edge for game top plays (allows more picks)
+        MIN_EDGE_GAME = 10  # 10% minimum edge for game top plays
+        MIN_LINE = 4.5  # Filter out low lines (under 4.5) - usually low-quality props
 
         for player_name, team, opp in game_players:
             try:
@@ -453,7 +454,10 @@ def generate_todays_games():
                     projection = pred[stat_key]
                     edge = ((projection - best_line) / best_line) * 100
 
-                    # Filter: 15%+ edge, <80% edge (bad data filter)
+                    # Filter: 10%+ edge, <80% edge (bad data), line >= 4.5 (quality check)
+                    if best_line < MIN_LINE:
+                        continue  # Skip low-value props (under 4.5)
+
                     if abs(edge) >= MIN_EDGE_GAME and abs(edge) < 80:
                         score = abs(edge) * (pred['confidence'] / 100)
 
@@ -801,6 +805,10 @@ def generate_top_picks(limit: int = 10):
                     best_book = 'FD'
 
                 if not best_line or best_line <= 0:
+                    continue
+
+                # Filter out low lines (under 4.5) - usually low-quality props
+                if best_line < 4.5:
                     continue
 
                 edge = ((proj - best_line) / best_line) * 100
