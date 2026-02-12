@@ -395,7 +395,7 @@ def generate_todays_games():
 
         result = game_predictor.predict_game(df, home_team, away_team)
 
-        # Find top plays
+        # Find top plays for this game (points, rebounds, assists)
         top_plays = []
         game_players = []
         if home_team in official_lineups:
@@ -403,35 +403,74 @@ def generate_todays_games():
         if away_team in official_lineups:
             game_players.extend([(p, away_team, home_team) for p in official_lineups[away_team].get('starters', [])])
 
+        MIN_EDGE_GAME = 10  # 10% minimum edge for game top plays (allows more picks)
+
         for player_name, team, opp in game_players:
             try:
                 pred = predictor.predict(player_name, opp)
                 if not pred:
                     continue
-                pts_line = get_player_prop_line(player_name, 'points')
-                if pts_line:
-                    dk_line = pts_line.get('dk', {}).get('over', {}).get('line', 0)
-                    fd_line = pts_line.get('fd', {}).get('over', {}).get('line', 0)
-                    best_line = min(dk_line, fd_line) if dk_line > 0 and fd_line > 0 else max(dk_line, fd_line)
-                    if best_line > 0:
-                        edge = ((pred['pts'] - best_line) / best_line) * 100
+
+                # Check points, rebounds, assists
+                prop_types = [
+                    ('points', 'pts', 'POINTS'),
+                    ('rebounds', 'reb', 'REBOUNDS'),
+                    ('assists', 'ast', 'ASSISTS')
+                ]
+
+                for prop_key, stat_key, stat_display in prop_types:
+                    prop_line = get_player_prop_line(player_name, prop_key)
+                    if not prop_line:
+                        continue
+
+                    dk_data = prop_line.get('dk', {}).get('over', {})
+                    fd_data = prop_line.get('fd', {}).get('over', {})
+
+                    dk_line = dk_data.get('line', 0)
+                    fd_line = fd_data.get('line', 0)
+                    dk_odds = dk_data.get('odds', -110)
+                    fd_odds = fd_data.get('odds', -110)
+
+                    # Use best available line (lower for OVER)
+                    if dk_line > 0 and fd_line > 0:
+                        best_line = min(dk_line, fd_line)
+                        best_book = 'DK' if dk_line <= fd_line else 'FD'
+                    elif dk_line > 0:
+                        best_line = dk_line
+                        best_book = 'DK'
+                    elif fd_line > 0:
+                        best_line = fd_line
+                        best_book = 'FD'
+                    else:
+                        continue
+
+                    projection = pred[stat_key]
+                    edge = ((projection - best_line) / best_line) * 100
+
+                    # Filter: 15%+ edge, <80% edge (bad data filter)
+                    if abs(edge) >= MIN_EDGE_GAME and abs(edge) < 80:
                         score = abs(edge) * (pred['confidence'] / 100)
-                        if abs(edge) >= 3:
-                            top_plays.append({
-                                'player': player_name,
-                                'team': team,
-                                'stat': 'PTS',
-                                'projection': pred['pts'],
-                                'dk_line': dk_line if dk_line > 0 else None,
-                                'fd_line': fd_line if fd_line > 0 else None,
-                                'edge': round(edge, 1),
-                                'direction': 'OVER' if edge > 0 else 'UNDER',
-                                'confidence': pred['confidence'],
-                                'score': score
-                            })
-            except:
+
+                        top_plays.append({
+                            'player': player_name,
+                            'team': team,
+                            'stat': stat_display,
+                            'projection': round(projection, 1),
+                            'line': best_line,
+                            'dk_line': dk_line if dk_line > 0 else None,
+                            'fd_line': fd_line if fd_line > 0 else None,
+                            'dk_odds': dk_odds if dk_line > 0 else None,
+                            'fd_odds': fd_odds if fd_line > 0 else None,
+                            'book': best_book,
+                            'edge': round(edge, 1),
+                            'direction': 'OVER' if edge > 0 else 'UNDER',
+                            'confidence': pred['confidence'],
+                            'score': round(score, 2)
+                        })
+            except Exception as e:
                 continue
 
+        # Sort by score and take top 3
         top_plays = sorted(top_plays, key=lambda x: x['score'], reverse=True)[:3]
 
         dk = game.get('bookmakers', {}).get('draftkings', {})
