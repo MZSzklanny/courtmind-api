@@ -58,8 +58,13 @@ def log_daily_predictions(picks):
     # Remove any existing predictions for dates being imported (in case of re-run)
     predictions = [p for p in predictions if p.get('game_date') not in import_dates]
 
-    # Add new predictions
+    # Add new predictions (filter out low lines < 4.5)
     for pick in picks:
+        # Filter out low-quality props (lines under 4.5)
+        line = pick.get('line', 0)
+        if line > 0 and line < 4.5:
+            continue  # Skip this pick
+
         # Preserve existing game_date if provided (for historical imports)
         if not pick.get('game_date'):
             pick['game_date'] = today
