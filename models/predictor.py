@@ -347,8 +347,12 @@ class PlayerPredictor:
     def load_lineups(self):
         """Load today's lineups from rotowire."""
         import json
+        from pathlib import Path
+        # Use paths relative to this file to work both locally and on production
+        base_dir = Path(__file__).resolve().parent.parent
+        lineups_path = base_dir / 'data' / 'rotowire_lineups.json'
         try:
-            with open('data/rotowire_lineups.json', 'r') as f:
+            with open(lineups_path, 'r') as f:
                 data = json.load(f)
                 return data.get('lineups', {})
         except:
