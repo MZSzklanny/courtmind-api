@@ -344,6 +344,91 @@ class PlayerPredictor:
             'is_b2b': is_b2b,
         }
 
+    def load_lineups(self):
+        """Load today's lineups from rotowire."""
+        import json
+        try:
+            with open('data/rotowire_lineups.json', 'r') as f:
+                data = json.load(f)
+                return data.get('lineups', {})
+        except:
+            return {}
+
+    def get_injury_boost(self, player, team):
+        """
+        Calculate usage boost when key teammates are injured.
+
+        Logic:
+        - 15+ PPG players trigger boost
+        - 55% of missing production redistributed (moderate)
+        - Weighted by PPG of remaining starters
+
+        Returns multiplier (e.g., 1.15 = 15% boost)
+        """
+        lineups = self.load_lineups()
+
+        if team not in lineups:
+            return 1.0
+
+        team_data = lineups[team]
+        out_players = team_data.get('out', [])
+        starters = team_data.get('starters', [])
+
+        if not out_players:
+            return 1.0
+
+        # Calculate total missing production (15+ PPG only)
+        total_missing_ppg = 0
+        injured_detail = []
+
+        for out_player in out_players:
+            # Try to get their stats
+            stats = self.get_player_stats(out_player)
+            if stats and stats['season_ppg'] >= 15:
+                total_missing_ppg += stats['season_ppg']
+                injured_detail.append({
+                    'player': out_player,
+                    'ppg': stats['season_ppg']
+                })
+
+        if total_missing_ppg == 0:
+            return 1.0
+
+        # 55% redistribution (moderate setting)
+        redistributed_pts = total_missing_ppg * 0.55
+
+        # Get PPG for all remaining starters
+        starter_ppgs = {}
+        total_weight = 0
+
+        for starter in starters:
+            stats = self.get_player_stats(starter)
+            if stats:
+                ppg = stats['season_ppg']
+                starter_ppgs[starter] = ppg
+                # Use squared weights (non-linear) so high-PPG players get more
+                total_weight += ppg ** 2
+
+        if total_weight == 0 or player not in starter_ppgs:
+            return 1.0
+
+        # Calculate this player's weighted share (higher PPG = bigger % boost)
+        player_ppg = starter_ppgs[player]
+        player_weight = player_ppg ** 2
+        player_share = player_weight / total_weight
+        player_boost_pts = redistributed_pts * player_share
+
+        # Convert to multiplier
+        if player_ppg > 0:
+            multiplier = 1.0 + (player_boost_pts / player_ppg)
+        else:
+            multiplier = 1.0
+
+        # Cap at reasonable range (max 30% boost)
+        multiplier = min(1.30, multiplier)
+
+        return multiplier
+
     def predict(self, player, opponent, game_date=None, is_home=True):
         """
         Generate prediction with advanced defensive modeling.
@@ -364,6 +449,9 @@ class PlayerPredictor:
         matchup = self.get_matchup_history(player, opponent)
         pace_def = self.get_pace_adjusted_defense(opponent)
         ctx = self.get_schedule_context(player, game_date)
+
+        # Get injury boost (usage increase when teammates are out)
+        injury_boost = self.get_injury_boost(player, stats['team'])
 
         # === POINTS PROJECTION ===
         season_avg = stats['season_ppg']
@@ -420,16 +508,19 @@ class PlayerPredictor:
         # Home/away
         home_adj = 1.02 if is_home else 0.98
 
-        # Final projection
-        pts_proj = baseline * trend_adj * def_adj * pace_boost * rest_adj * home_adj
+        # Final projection (with injury boost)
+        pts_proj = baseline * trend_adj * def_adj * pace_boost * rest_adj * home_adj * injury_boost
 
         # === OTHER STATS ===
         reb_base = stats['season_rpg'] * 0.7 + stats['last_5_rpg'] * 0.3
         ast_base = stats['season_apg'] * 0.7 + stats['last_5_apg'] * 0.3
 
-        reb_proj = reb_base * pace_boost
-        ast_proj = ast_base * pace_boost
-        three_proj = stats['season_3pm'] * def_adj
+        # Apply injury boost to other stats (slightly dampened)
+        injury_boost_other = 1.0 + ((injury_boost - 1.0) * 0.6)  # 60% of pts boost
+
+        reb_proj = reb_base * pace_boost * injury_boost_other
+        ast_proj = ast_base * pace_boost * injury_boost_other
+        three_proj = stats['season_3pm'] * def_adj * injury_boost_other
 
         # === IMPROVED CONFIDENCE ===
         # Factor in: consistency, sample size, minutes stability, matchup history
@@ -480,6 +571,7 @@ class PlayerPredictor:
             'matchup_games': matchup['games'],
             'matchup_avg': matchup['avg_vs'],
             'pace_factor': pace_def['pace_factor'],
+            'injury_boost': round(injury_boost, 3),
         }
 
 
