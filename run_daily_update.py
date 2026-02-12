@@ -146,6 +146,18 @@ def main():
                     log(f"  {i}. {matchup} - {stat} {direction}")
                     log(f"     Line: {line} | Edge: {edge:.1f}% | Score: {score:.2f}")
 
+    # Step 5: Log picks to tracking
+    log("\n" + "=" * 70)
+    log("STEP 5: Log Picks to Tracking")
+    log("=" * 70)
+
+    if top_picks and top_picks.get('picks'):
+        from models.bet_tracker import log_daily_predictions
+        logged_count = log_daily_predictions(top_picks['picks'])
+        log(f"  Logged {logged_count} picks to tracking")
+
+    time.sleep(2)
+
     # Step 6: Summary
     log("\n" + "=" * 70)
     log("DAILY UPDATE COMPLETE")
