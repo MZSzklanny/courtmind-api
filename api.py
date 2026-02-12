@@ -629,7 +629,9 @@ def health_check():
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "data_loaded": len(df) > 0,
-        "odds_api": get_api_key() is not None
+        "odds_api": get_api_key() is not None,
+        "df_shape": list(df.shape),
+        "has_fg3m": 'fg3m' in df.columns
     }
 
 
