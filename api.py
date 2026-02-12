@@ -69,6 +69,12 @@ if not DATA_FILE.exists():
     # Fallback for local development
     DATA_FILE = Path('C:/Users/user/NBA_PRODUCTION.parquet')
 df = pd.read_parquet(DATA_FILE)
+
+# CRITICAL: Add fg3m column if missing (required for predictor)
+if 'fg3m' not in df.columns:
+    print("[STARTUP] WARNING: fg3m column missing - adding placeholder")
+    df['fg3m'] = 0
+
 predictor = PlayerPredictor(df)
 
 TEAMS = {
