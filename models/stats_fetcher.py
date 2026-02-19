@@ -137,7 +137,7 @@ def get_all_player_stats_for_date(game_date):
 
     if not games:
         print(f"No games found for {game_date}")
-        return pd.DataFrame()
+        return pd.DataFrame(), {}
 
     all_stats = []
     game_results = {}
