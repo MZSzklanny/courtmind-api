@@ -10,12 +10,22 @@ CourtMind uses a calibrated prediction model with Odds API integration to genera
 
 **Morning (6:00 AM):**
 - Grades yesterday's picks
+- **Refreshes lineups + OUT list** (injuries/DNP)
 - Generates today's games with fresh odds
 - Creates TOP 10 picks
 
 **Evening (5:00 PM):**
+- **Refreshes lineups + OUT list** (final before games)
 - Refreshes odds and lines
 - Regenerates TOP 10 picks
+
+### OUT/Injury Handling
+
+Players listed as OUT are:
+- Excluded from TOP picks generation
+- Shown with "-" projections on Player Analysis page
+- Marked with 🚫 in player dropdown
+- Displayed with red "OUT" warning badge
 
 ### Manual Update
 
