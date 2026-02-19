@@ -1207,8 +1207,16 @@ def log_todays_predictions():
 @app.post("/api/daily-tracking/grade")
 def grade_yesterdays_predictions(date: str = None):
     """Grade predictions for a specific date (defaults to yesterday)"""
-    result = grade_daily_picks(df, date)
-    return result
+    try:
+        from datetime import datetime, timedelta
+        if date is None:
+            date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+
+        # Use auto-grader which fetches real stats from NBA API
+        result = grade_predictions_for_date(date)
+        return {"status": "success", **result}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 
 @app.post("/api/tracking/auto-grade")
