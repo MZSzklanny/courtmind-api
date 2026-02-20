@@ -114,15 +114,21 @@ def calculate_opponent_defensive_rating(df, opponent, n_games=10):
     # Get unique game IDs
     game_ids = opp_games['game_id'].unique()[-n_games:]
 
-    # Get opponents' scoring in those games
-    all_games = df[df['game_id'].isin(game_ids)]
-    opp_allowed = all_games[all_games['team'] != opponent]
+    # Get points allowed using actual game scores (not summed player pts which is incomplete)
+    pts_allowed_list = []
+    for gid in game_ids:
+        game_row = df[df['game_id'] == gid].iloc[0]
+        if game_row['home_team'] == opponent:
+            # Opponent was home, they allowed away_score
+            pts_allowed_list.append(game_row['away_score'])
+        else:
+            # Opponent was away, they allowed home_score
+            pts_allowed_list.append(game_row['home_score'])
 
-    if len(opp_allowed) == 0:
+    if not pts_allowed_list:
         return 1.0
 
-    # Points allowed per game
-    pts_allowed = opp_allowed.groupby('game_id')['pts'].sum().mean()
+    pts_allowed = np.mean(pts_allowed_list)
 
     # League average is ~115 PPG
     league_avg = 115.0

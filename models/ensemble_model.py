@@ -573,14 +573,19 @@ class GamePredictor:
         if len(team_games) == 0 or len(opp_games) == 0:
             return None
 
-        # Team stats (last n games)
+        # Team stats (last n games) - use actual game scores, not summed player pts
+        # (player pts are quarter-level and incomplete)
         team_recent = team_games.groupby('game_id').agg({
             'pts': 'sum',
             'trb': 'sum',
             'ast': 'sum',
             'fgm': 'sum',
             'fga': 'sum',
-            'tov': 'sum'
+            'tov': 'sum',
+            'home_team': 'first',
+            'away_team': 'first',
+            'home_score': 'first',
+            'away_score': 'first'
         }).tail(n_games)
 
         opp_recent = opp_games.groupby('game_id').agg({
@@ -589,16 +594,33 @@ class GamePredictor:
             'ast': 'sum',
             'fgm': 'sum',
             'fga': 'sum',
-            'tov': 'sum'
+            'tov': 'sum',
+            'home_team': 'first',
+            'away_team': 'first',
+            'home_score': 'first',
+            'away_score': 'first'
         }).tail(n_games)
 
+        # Calculate actual PPG using home_score/away_score columns
+        def get_actual_ppg(games_df, team_abbr):
+            scores = []
+            for _, row in games_df.iterrows():
+                if row['home_team'] == team_abbr:
+                    scores.append(row['home_score'])
+                else:
+                    scores.append(row['away_score'])
+            return np.mean(scores) if scores else 110.0  # Default to league avg
+
+        team_ppg = get_actual_ppg(team_recent, team)
+        opp_ppg = get_actual_ppg(opp_recent, opponent)
+
         features = {
-            'team_ppg': team_recent['pts'].mean(),
+            'team_ppg': team_ppg,
             'team_rpg': team_recent['trb'].mean(),
             'team_apg': team_recent['ast'].mean(),
             'team_fg_pct': team_recent['fgm'].sum() / team_recent['fga'].sum() if team_recent['fga'].sum() > 0 else 0.45,
             'team_tov': team_recent['tov'].mean(),
-            'opp_ppg': opp_recent['pts'].mean(),
+            'opp_ppg': opp_ppg,
             'opp_rpg': opp_recent['trb'].mean(),
             'opp_fg_pct': opp_recent['fgm'].sum() / opp_recent['fga'].sum() if opp_recent['fga'].sum() > 0 else 0.45,
             'opp_tov': opp_recent['tov'].mean(),
