@@ -1353,3 +1353,4 @@ async def startup_regenerate_cache():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+# Triggered redeploy Fri, Feb 20, 2026  5:23:19 PM
