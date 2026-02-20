@@ -1295,21 +1295,17 @@ async def startup_regenerate_cache():
             # STEP 2: Check if games cache exists and is from today
             games_cache = load_games_cache()
 
-            if games_cache and games_cache.get('date') == today:
+            if games_cache and games_cache.get('generated_at', '')[:10] == today:
                 print(f"[STARTUP] Games cache exists for {today}, skipping regeneration")
             else:
-                print("[STARTUP] No valid games cache, regenerating...")
-                generate_games()
-                print("[STARTUP] Games cache regenerated")
+                print("[STARTUP] Skipping games regeneration on startup (use POST /api/games/generate)")
 
             # Check picks cache
             picks_cache = load_top_picks_cache()
             if picks_cache and picks_cache.get('date') == today:
                 print(f"[STARTUP] Picks cache exists for {today}, skipping regeneration")
             else:
-                print("[STARTUP] No valid picks cache, regenerating...")
-                generate_top_picks(limit=10)
-                print("[STARTUP] Picks cache regenerated")
+                print("[STARTUP] Skipping picks regeneration on startup (use POST /api/top-picks/generate)")
 
         except Exception as e:
             print(f"[STARTUP] Cache check/regen error: {e}")
