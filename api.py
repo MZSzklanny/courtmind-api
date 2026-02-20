@@ -284,27 +284,15 @@ def get_player_props(player: str):
 
 @app.get("/api/games")
 def get_todays_games():
-    """Get cached games data. Auto-regenerates if cache is stale or missing."""
+    """Get cached games data. Returns stale cache if available - use POST /api/games/generate to refresh."""
     cached = load_games_cache()
-    today = datetime.now().strftime('%Y-%m-%d')
 
-    # Check if cache is fresh (generated today)
+    # Always return cached data if available (don't block on regeneration)
     if cached:
-        cache_date = cached.get('generated_at', '')[:10]  # Get YYYY-MM-DD from ISO timestamp
-        if cache_date == today:
-            return cached
-        print(f"[API] Cache stale (from {cache_date}), regenerating for {today}...")
-    else:
-        print(f"[API] No cache found, generating games for {today}...")
+        return cached
 
-    # Auto-regenerate if stale or missing
-    try:
-        return generate_todays_games()
-    except Exception as e:
-        print(f"[API] Auto-generate failed: {e}")
-        if cached:
-            return cached  # Return stale cache if regeneration fails
-        return {"games": [], "count": 0, "message": f"Cache regeneration failed: {str(e)}"}
+    # No cache at all - return empty
+    return {"games": [], "count": 0, "message": "No cache available. Use POST /api/games/generate to create."}
 
 
 # ============================================================================
@@ -700,52 +688,31 @@ def save_games_cache(data):
 @app.get("/api/top-picks")
 def get_top_picks(limit: int = 10):
     """
-    Get cached top picks of the day. Auto-regenerates if cache is stale or missing.
+    Get cached top picks. Returns stale cache if available - use POST /api/top-picks/generate to refresh.
     """
     cached = load_top_picks_cache()
     today = datetime.now().strftime('%Y-%m-%d')
 
-    # Check if cache is fresh (generated today)
+    # Always return cached data if available (don't block on regeneration)
     if cached:
-        cache_date = cached.get('date', '')
-        if cache_date == today:
-            picks = cached.get('picks', [])[:limit]
-            return {
-                "picks": picks,
-                "count": len(picks),
-                "total_evaluated": cached.get('total_evaluated', 0),
-                "date": cached.get('date', ''),
-                "generated_at": cached.get('generated_at', ''),
-                "criteria": "Score = |Edge%| × (Confidence/100)"
-            }
-        print(f"[API] Top picks cache stale (from {cache_date}), regenerating for {today}...")
-    else:
-        print(f"[API] No top picks cache found, generating for {today}...")
-
-    # Auto-regenerate if stale or missing
-    try:
-        return generate_top_picks(limit=limit)
-    except Exception as e:
-        print(f"[API] Top picks auto-generate failed: {e}")
-        if cached:
-            # Return stale cache if regeneration fails
-            picks = cached.get('picks', [])[:limit]
-            return {
-                "picks": picks,
-                "count": len(picks),
-                "total_evaluated": cached.get('total_evaluated', 0),
-                "date": cached.get('date', ''),
-                "generated_at": cached.get('generated_at', ''),
-                "criteria": "Score = |Edge%| × (Confidence/100)",
-                "warning": "Cache is stale, regeneration failed"
-            }
+        picks = cached.get('picks', [])[:limit]
         return {
-            "picks": [],
-            "count": 0,
-            "total_evaluated": 0,
-            "date": today,
-            "message": f"Cache regeneration failed: {str(e)}"
+            "picks": picks,
+            "count": len(picks),
+            "total_evaluated": cached.get('total_evaluated', 0),
+            "date": cached.get('date', ''),
+            "generated_at": cached.get('generated_at', ''),
+            "criteria": "Score = |Edge%| × (Confidence/100)"
         }
+
+    # No cache at all - return empty
+    return {
+        "picks": [],
+        "count": 0,
+        "total_evaluated": 0,
+        "date": today,
+        "message": "No cache available. Use POST /api/top-picks/generate to create."
+    }
 
 
 @app.post("/api/top-picks/generate")
