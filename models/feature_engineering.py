@@ -105,24 +105,32 @@ def calculate_opponent_defensive_rating(df, opponent, n_games=10):
     Calculate opponent's defensive rating.
     Lower = better defense.
     Returns factor relative to league average (1.0 = average).
+
+    FIXED: Uses actual home_score/away_score instead of summing player pts
+    (quarter-level player data gives incomplete totals)
     """
-    # Get games where opponent was playing
-    opp_games = df[df['team'] == opponent].copy()
-    if len(opp_games) == 0:
+    # Get games where opponent was playing (as home or away)
+    opp_home = df[df['home_team'] == opponent].drop_duplicates('game_id').tail(n_games)
+    opp_away = df[df['away_team'] == opponent].drop_duplicates('game_id').tail(n_games)
+
+    if len(opp_home) == 0 and len(opp_away) == 0:
         return 1.0  # League average
 
-    # Get unique game IDs
-    game_ids = opp_games['game_id'].unique()[-n_games:]
+    # Points ALLOWED = opponent's score when playing against them
+    # When opponent is home team, they allowed away_score
+    # When opponent is away team, they allowed home_score
+    pts_allowed_list = []
 
-    # Get opponents' scoring in those games
-    all_games = df[df['game_id'].isin(game_ids)]
-    opp_allowed = all_games[all_games['team'] != opponent]
+    if len(opp_home) > 0 and 'away_score' in opp_home.columns:
+        pts_allowed_list.extend(opp_home['away_score'].dropna().tolist())
 
-    if len(opp_allowed) == 0:
+    if len(opp_away) > 0 and 'home_score' in opp_away.columns:
+        pts_allowed_list.extend(opp_away['home_score'].dropna().tolist())
+
+    if len(pts_allowed_list) == 0:
         return 1.0
 
-    # Points allowed per game
-    pts_allowed = opp_allowed.groupby('game_id')['pts'].sum().mean()
+    pts_allowed = np.mean(pts_allowed_list)
 
     # League average is ~115 PPG
     league_avg = 115.0

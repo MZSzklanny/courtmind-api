@@ -573,9 +573,20 @@ class GamePredictor:
         if len(team_games) == 0 or len(opp_games) == 0:
             return None
 
-        # Team stats (last n games)
+        # USE ACTUAL GAME SCORES (home_score/away_score) instead of summing player pts
+        # The parquet has quarter-level player data which is incomplete when summed
+
+        # Get team PPG from actual scores
+        team_home = df[(df['home_team'] == team)].drop_duplicates('game_id').tail(n_games)
+        team_away = df[(df['away_team'] == team)].drop_duplicates('game_id').tail(n_games)
+        team_scores = pd.concat([team_home['home_score'], team_away['away_score']]).dropna()
+
+        opp_home = df[(df['home_team'] == opponent)].drop_duplicates('game_id').tail(n_games)
+        opp_away = df[(df['away_team'] == opponent)].drop_duplicates('game_id').tail(n_games)
+        opp_scores = pd.concat([opp_home['home_score'], opp_away['away_score']]).dropna()
+
+        # Team stats for other metrics (trb, ast, etc.)
         team_recent = team_games.groupby('game_id').agg({
-            'pts': 'sum',
             'trb': 'sum',
             'ast': 'sum',
             'fgm': 'sum',
@@ -584,7 +595,6 @@ class GamePredictor:
         }).tail(n_games)
 
         opp_recent = opp_games.groupby('game_id').agg({
-            'pts': 'sum',
             'trb': 'sum',
             'ast': 'sum',
             'fgm': 'sum',
@@ -593,12 +603,12 @@ class GamePredictor:
         }).tail(n_games)
 
         features = {
-            'team_ppg': team_recent['pts'].mean(),
+            'team_ppg': team_scores.mean() if len(team_scores) > 0 else 115.0,
             'team_rpg': team_recent['trb'].mean(),
             'team_apg': team_recent['ast'].mean(),
             'team_fg_pct': team_recent['fgm'].sum() / team_recent['fga'].sum() if team_recent['fga'].sum() > 0 else 0.45,
             'team_tov': team_recent['tov'].mean(),
-            'opp_ppg': opp_recent['pts'].mean(),
+            'opp_ppg': opp_scores.mean() if len(opp_scores) > 0 else 115.0,
             'opp_rpg': opp_recent['trb'].mean(),
             'opp_fg_pct': opp_recent['fgm'].sum() / opp_recent['fga'].sum() if opp_recent['fga'].sum() > 0 else 0.45,
             'opp_tov': opp_recent['tov'].mean(),
