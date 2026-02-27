@@ -1,158 +1,490 @@
 {
-  "date": "2026-02-12",
-  "scraped_at": "2026-02-12T17:14:35.651889",
+  "date": "2026-02-26",
+  "scraped_at": "2026-02-26T18:30:05.531675",
   "lineups": {
-    "MIL": {
-      "opponent": "OKC",
+    "CHA": {
+      "opponent": "IND",
       "home": false,
       "starters": [
-        "Ryan Rollins",
-        "Kevin Porter",
-        "AJ Green",
-        "Kyle Kuzma",
-        "Myles Turner"
+        "LaMelo Ball",
+        "Kon Knueppel",
+        "Brandon Miller",
+        "Miles Bridges",
+        "Moussa Diabate"
       ],
       "out": [
-        "Giannis Antetokounmpo",
-        "Taurean Prince"
+        "Liam McNeeley"
       ]
     },
-    "OKC": {
-      "opponent": "MIL",
+    "IND": {
+      "opponent": "CHA",
       "home": true,
       "starters": [
-        "Cason Wallace",
-        "Luguentz Dort",
-        "Aaron Wiggins",
-        "Chet Holmgren",
-        "Jaylin Williams"
+        "Andrew Nembhard",
+        "Kam Jones",
+        "Ben Sheppard",
+        "Jarace Walker",
+        "Jay Huff"
       ],
       "out": [
-        "Branden Carlson",
-        "Shai Gilgeous-Alexander",
-        "Isaiah Hartenstein",
-        "Ajay Mitchell",
-        "Jalen Williams"
+        "Aaron Nesmith",
+        "Pascal Siakam",
+        "Ivica Zubac"
+      ]
+    },
+    "MIA": {
+      "opponent": "PHI",
+      "home": false,
+      "starters": [
+        "Davion Mitchell",
+        "Norman Powell",
+        "Pelle Larsson",
+        "Andrew Wiggins",
+        "Bam Adebayo"
+      ],
+      "out": [
+        "Nikola Jovic",
+        "Terry Rozier"
+      ]
+    },
+    "PHI": {
+      "opponent": "MIA",
+      "home": true,
+      "starters": [
+        "Tyrese Maxey",
+        "VJ Edgecombe",
+        "Kelly Oubre",
+        "Dominick Barlow",
+        "Joel Embiid"
+      ],
+      "out": [
+        "Johni Broome",
+        "Paul George"
+      ]
+    },
+    "WAS": {
+      "opponent": "ATL",
+      "home": false,
+      "starters": [
+        "Bub Carrington",
+        "Tre Johnson",
+        "Will Riley",
+        "Bilal Coulibaly",
+        "Tristan Vukcevic"
+      ],
+      "out": [
+        "Anthony Davis",
+        "Kyshawn George",
+        "D'Angelo Russell",
+        "Alex Sarr",
+        "Trae Young"
+      ]
+    },
+    "ATL": {
+      "opponent": "WAS",
+      "home": true,
+      "starters": [
+        "CJ McCollum",
+        "Corey Kispert",
+        "Dyson Daniels",
+        "Mouhamed Gueye",
+        "Onyeka Okongwu"
+      ],
+      "out": [
+        "Nickeil Alexander-Walker",
+        "Jalen Johnson"
+      ]
+    },
+    "SAS": {
+      "opponent": "BKN",
+      "home": false,
+      "starters": [
+        "De'Aaron Fox",
+        "Stephon Castle",
+        "Devin Vassell",
+        "Julian Champagnie",
+        "Victor Wembanyama"
+      ],
+      "out": [
+        "Mason Plumlee"
+      ]
+    },
+    "BKN": {
+      "opponent": "SAS",
+      "home": true,
+      "starters": [
+        "Nolan Traore",
+        "Egor Demin",
+        "Michael Porter",
+        "Noah Clowney",
+        "Nic Claxton"
+      ],
+      "out": []
+    },
+    "HOU": {
+      "opponent": "ORL",
+      "home": false,
+      "starters": [
+        "Amen Thompson",
+        "Tari Eason",
+        "Kevin Durant",
+        "Jabari Smith",
+        "Alperen Sengun"
+      ],
+      "out": [
+        "Jae'Sean Tate",
+        "Fred VanVleet"
+      ]
+    },
+    "ORL": {
+      "opponent": "HOU",
+      "home": true,
+      "starters": [
+        "Jalen Suggs",
+        "Anthony Black",
+        "Desmond Bane",
+        "Paolo Banchero",
+        "Wendell Carter"
+      ],
+      "out": [
+        "Franz Wagner"
       ]
     },
     "POR": {
-      "opponent": "UTA",
+      "opponent": "CHI",
       "home": false,
       "starters": [
         "Jrue Holiday",
         "Toumani Camara",
+        "Kris Murray",
         "Jerami Grant",
-        "Deni Avdija",
         "Donovan Clingan"
       ],
       "out": [
-        "Kris Murray",
-        "Shaedon Sharpe",
-        "Matisse Thybulle"
+        "Deni Avdija",
+        "Shaedon Sharpe"
+      ]
+    },
+    "CHI": {
+      "opponent": "POR",
+      "home": true,
+      "starters": [
+        "Josh Giddey",
+        "Isaac Okoro",
+        "Matas Buzelis",
+        "Guerschon Yabusele",
+        "Nick Richards"
+      ],
+      "out": [
+        "Jaden Ivey",
+        "Anfernee Simons",
+        "Jalen Smith",
+        "Patrick Williams"
+      ]
+    },
+    "SAC": {
+      "opponent": "DAL",
+      "home": false,
+      "starters": [
+        "Devin Carter",
+        "Nique Clifford",
+        "DeMar DeRozan",
+        "Precious Achiuwa",
+        "Maxime Raynaud"
+      ],
+      "out": [
+        "Dylan Cardwell",
+        "Keegan Murray",
+        "Russell Westbrook"
+      ]
+    },
+    "DAL": {
+      "opponent": "SAC",
+      "home": true,
+      "starters": [
+        "Max Christie",
+        "Naji Marshall",
+        "Khris Middleton",
+        "Caleb Martin",
+        "Marvin Bagley"
+      ],
+      "out": [
+        "Cooper Flagg",
+        "P.J. Washington"
+      ]
+    },
+    "LAL": {
+      "opponent": "PHX",
+      "home": false,
+      "starters": [
+        "Luka Doncic",
+        "Austin Reaves",
+        "Marcus Smart",
+        "LeBron James",
+        "Deandre Ayton"
+      ],
+      "out": [
+        "Rui Hachimura"
+      ]
+    },
+    "PHX": {
+      "opponent": "LAL",
+      "home": true,
+      "starters": [
+        "Collin Gillespie",
+        "Jalen Green",
+        "Grayson Allen",
+        "Royce O'Neale",
+        "Mark Williams"
+      ],
+      "out": [
+        "Cole Anthony",
+        "Devin Booker",
+        "Dillon Brooks",
+        "Jordan Goodwin",
+        "Haywood Highsmith"
+      ]
+    },
+    "NOP": {
+      "opponent": "UTA",
+      "home": false,
+      "starters": [
+        "Dejounte Murray",
+        "Herbert Jones",
+        "Saddiq Bey",
+        "Zion Williamson",
+        "DeAndre Jordan"
+      ],
+      "out": [
+        "Yves Missi",
+        "Trey Murphy"
       ]
     },
     "UTA": {
-      "opponent": "POR",
+      "opponent": "NOP",
       "home": true,
       "starters": [
         "Isaiah Collier",
         "Cody Williams",
+        "John Konchar",
         "Ace Bailey",
-        "Kyle Filipowski",
-        "Jusuf Nurkic"
+        "Kyle Filipowski"
       ],
       "out": [
         "Keyonte George",
-        "Elijah Harkless",
         "Lauri Markkanen"
       ]
     },
-    "DAL": {
-      "opponent": "LAL",
+    "MIN": {
+      "opponent": "LAC",
       "home": false,
       "starters": [
-        "Tyus Jones",
-        "Max Christie",
-        "Naji Marshall",
-        "P.J. Washington",
-        "Daniel Gafford"
+        "Donte DiVincenzo",
+        "Anthony Edwards",
+        "Jaden McDaniels",
+        "Julius Randle",
+        "Rudy Gobert"
       ],
-      "out": [
-        "Cooper Flagg",
-        "Kyrie Irving"
-      ]
+      "out": []
     },
-    "LAL": {
-      "opponent": "DAL",
+    "LAC": {
+      "opponent": "MIN",
       "home": true,
       "starters": [
-        "Austin Reaves",
-        "Marcus Smart",
-        "Jake LaRavia",
-        "LeBron James",
-        "Jaxson Hayes"
+        "Kris Dunn",
+        "Jordan Miller",
+        "Kobe Sanders",
+        "Derrick Jones",
+        "Brook Lopez"
       ],
       "out": [
-        "Deandre Ayton",
-        "Luka Doncic"
+        "John Collins",
+        "Darius Garland",
+        "Kawhi Leonard"
       ]
     }
   },
   "games": [
     {
-      "away": "MIL",
-      "home": "OKC",
+      "away": "CHA",
+      "home": "IND",
       "away_starters": [
-        "Ryan Rollins",
-        "Kevin Porter",
-        "AJ Green",
-        "Kyle Kuzma",
-        "Myles Turner"
+        "LaMelo Ball",
+        "Kon Knueppel",
+        "Brandon Miller",
+        "Miles Bridges",
+        "Moussa Diabate"
       ],
       "home_starters": [
-        "Cason Wallace",
-        "Luguentz Dort",
-        "Aaron Wiggins",
-        "Chet Holmgren",
-        "Jaylin Williams"
+        "Andrew Nembhard",
+        "Kam Jones",
+        "Ben Sheppard",
+        "Jarace Walker",
+        "Jay Huff"
+      ]
+    },
+    {
+      "away": "MIA",
+      "home": "PHI",
+      "away_starters": [
+        "Davion Mitchell",
+        "Norman Powell",
+        "Pelle Larsson",
+        "Andrew Wiggins",
+        "Bam Adebayo"
+      ],
+      "home_starters": [
+        "Tyrese Maxey",
+        "VJ Edgecombe",
+        "Kelly Oubre",
+        "Dominick Barlow",
+        "Joel Embiid"
+      ]
+    },
+    {
+      "away": "WAS",
+      "home": "ATL",
+      "away_starters": [
+        "Bub Carrington",
+        "Tre Johnson",
+        "Will Riley",
+        "Bilal Coulibaly",
+        "Tristan Vukcevic"
+      ],
+      "home_starters": [
+        "CJ McCollum",
+        "Corey Kispert",
+        "Dyson Daniels",
+        "Mouhamed Gueye",
+        "Onyeka Okongwu"
+      ]
+    },
+    {
+      "away": "SAS",
+      "home": "BKN",
+      "away_starters": [
+        "De'Aaron Fox",
+        "Stephon Castle",
+        "Devin Vassell",
+        "Julian Champagnie",
+        "Victor Wembanyama"
+      ],
+      "home_starters": [
+        "Nolan Traore",
+        "Egor Demin",
+        "Michael Porter",
+        "Noah Clowney",
+        "Nic Claxton"
+      ]
+    },
+    {
+      "away": "HOU",
+      "home": "ORL",
+      "away_starters": [
+        "Amen Thompson",
+        "Tari Eason",
+        "Kevin Durant",
+        "Jabari Smith",
+        "Alperen Sengun"
+      ],
+      "home_starters": [
+        "Jalen Suggs",
+        "Anthony Black",
+        "Desmond Bane",
+        "Paolo Banchero",
+        "Wendell Carter"
       ]
     },
     {
       "away": "POR",
-      "home": "UTA",
+      "home": "CHI",
       "away_starters": [
         "Jrue Holiday",
         "Toumani Camara",
+        "Kris Murray",
         "Jerami Grant",
-        "Deni Avdija",
         "Donovan Clingan"
+      ],
+      "home_starters": [
+        "Josh Giddey",
+        "Isaac Okoro",
+        "Matas Buzelis",
+        "Guerschon Yabusele",
+        "Nick Richards"
+      ]
+    },
+    {
+      "away": "SAC",
+      "home": "DAL",
+      "away_starters": [
+        "Devin Carter",
+        "Nique Clifford",
+        "DeMar DeRozan",
+        "Precious Achiuwa",
+        "Maxime Raynaud"
+      ],
+      "home_starters": [
+        "Max Christie",
+        "Naji Marshall",
+        "Khris Middleton",
+        "Caleb Martin",
+        "Marvin Bagley"
+      ]
+    },
+    {
+      "away": "LAL",
+      "home": "PHX",
+      "away_starters": [
+        "Luka Doncic",
+        "Austin Reaves",
+        "Marcus Smart",
+        "LeBron James",
+        "Deandre Ayton"
+      ],
+      "home_starters": [
+        "Collin Gillespie",
+        "Jalen Green",
+        "Grayson Allen",
+        "Royce O'Neale",
+        "Mark Williams"
+      ]
+    },
+    {
+      "away": "NOP",
+      "home": "UTA",
+      "away_starters": [
+        "Dejounte Murray",
+        "Herbert Jones",
+        "Saddiq Bey",
+        "Zion Williamson",
+        "DeAndre Jordan"
       ],
       "home_starters": [
         "Isaiah Collier",
         "Cody Williams",
+        "John Konchar",
         "Ace Bailey",
-        "Kyle Filipowski",
-        "Jusuf Nurkic"
+        "Kyle Filipowski"
       ]
     },
     {
-      "away": "DAL",
-      "home": "LAL",
+      "away": "MIN",
+      "home": "LAC",
       "away_starters": [
-        "Tyus Jones",
-        "Max Christie",
-        "Naji Marshall",
-        "P.J. Washington",
-        "Daniel Gafford"
+        "Donte DiVincenzo",
+        "Anthony Edwards",
+        "Jaden McDaniels",
+        "Julius Randle",
+        "Rudy Gobert"
       ],
       "home_starters": [
-        "Austin Reaves",
-        "Marcus Smart",
-        "Jake LaRavia",
-        "LeBron James",
-        "Jaxson Hayes"
+        "Kris Dunn",
+        "Jordan Miller",
+        "Kobe Sanders",
+        "Derrick Jones",
+        "Brook Lopez"
       ]
     }
   ],
-  "game_count": 3
+  "game_count": 10
 }
